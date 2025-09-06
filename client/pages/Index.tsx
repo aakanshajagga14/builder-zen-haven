@@ -1,62 +1,40 @@
-import { DemoResponse } from "@shared/api";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import Header from "@/components/layout/Header";
+import ARScene, { RealtimeStats } from "@/components/dashboard/ARScene";
+import MetricsPanel from "@/components/dashboard/MetricsPanel";
+import ControlsPanel from "@/components/dashboard/ControlsPanel";
+import AlertsFeed from "@/components/dashboard/AlertsFeed";
 
 export default function Index() {
-  const [exampleFromServer, setExampleFromServer] = useState("");
-  // Fetch users on component mount
-  useEffect(() => {
-    fetchDemo();
-  }, []);
-
-  // Example of how to fetch data from the server (if needed)
-  const fetchDemo = async () => {
-    try {
-      const response = await fetch("/api/demo");
-      const data = (await response.json()) as DemoResponse;
-      setExampleFromServer(data.message);
-    } catch (error) {
-      console.error("Error fetching hello:", error);
-    }
-  };
+  const [running, setRunning] = useState(true);
+  const [showWireframe, setShowWireframe] = useState(false);
+  const [showHeatmap, setShowHeatmap] = useState(true);
+  const [stats, setStats] = useState<RealtimeStats>({ hazardIndex: 0, velocityAvg: 0, activeRocks: 0, confidence: 0 });
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-      <div className="text-center">
-        {/* TODO: FUSION_GENERATION_APP_PLACEHOLDER replace everything here with the actual app! */}
-        <h1 className="text-2xl font-semibold text-slate-800 flex items-center justify-center gap-3">
-          <svg
-            className="animate-spin h-8 w-8 text-slate-400"
-            viewBox="0 0 50 50"
-          >
-            <circle
-              className="opacity-30"
-              cx="25"
-              cy="25"
-              r="20"
-              stroke="currentColor"
-              strokeWidth="5"
-              fill="none"
+    <div className="min-h-screen bg-gradient-to-b from-background to-background">
+      <Header />
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-8 h-[48vh] lg:h-[60vh]">
+            <ARScene running={running} showWireframe={showWireframe} showHeatmap={showHeatmap} onStats={setStats} />
+          </div>
+          <div className="lg:col-span-4 space-y-4">
+            <ControlsPanel
+              running={running}
+              setRunning={setRunning}
+              showWireframe={showWireframe}
+              setShowWireframe={setShowWireframe}
+              showHeatmap={showHeatmap}
+              setShowHeatmap={setShowHeatmap}
             />
-            <circle
-              className="text-slate-600"
-              cx="25"
-              cy="25"
-              r="20"
-              stroke="currentColor"
-              strokeWidth="5"
-              fill="none"
-              strokeDasharray="100"
-              strokeDashoffset="75"
-            />
-          </svg>
-          Generating your app...
-        </h1>
-        <p className="mt-4 text-slate-600 max-w-md">
-          Watch the chat on the left for updates that might need your attention
-          to finish generating
-        </p>
-        <p className="mt-4 hidden max-w-md">{exampleFromServer}</p>
-      </div>
+            <AlertsFeed hazard={stats.hazardIndex} />
+          </div>
+        </section>
+        <section>
+          <MetricsPanel hazard={stats.hazardIndex} velocityAvg={stats.velocityAvg} activeRocks={stats.activeRocks} confidence={stats.confidence} />
+        </section>
+      </main>
     </div>
   );
 }
