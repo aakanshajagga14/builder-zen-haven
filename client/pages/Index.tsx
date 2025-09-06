@@ -20,6 +20,7 @@ export default function Index() {
   const [mountainCount, setMountainCount] = useState(14);
   const [alertsEnabled, setAlertsEnabled] = useState(true);
   const [alertsMinInterval, setAlertsMinInterval] = useState(30);
+  const [mlActive, setMlActive] = useState(false);
   const [stats, setStats] = useState<RealtimeStats>({
     hazardIndex: 0,
     velocityAvg: 0,
