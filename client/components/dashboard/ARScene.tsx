@@ -380,6 +380,7 @@ export default function ARScene({
 }: ARSceneProps) {
   const [rocks, setRocks] = useState<Rock[]>([]);
   const rocksRef = useRef<Rock[]>([]);
+  const statsRef = useRef<RealtimeStats | null>(null);
 
   useEffect(() => {
     rocksRef.current = rocks;
