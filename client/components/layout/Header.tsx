@@ -31,13 +31,25 @@ export default function Header() {
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-14 flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <div className={cn("h-7 w-7 rounded-md border flex items-center justify-center", "bg-gradient-to-tr from-brand to-cyan-400 border-brand/30 shadow-[0_0_25px_-8px_hsl(var(--brand))]")}> 
+          <div
+            className={cn(
+              "h-7 w-7 rounded-md border flex items-center justify-center",
+              "bg-gradient-to-tr from-brand to-cyan-400 border-brand/30 shadow-[0_0_25px_-8px_hsl(var(--brand))]",
+            )}
+          >
             <Zap className="h-4 w-4 text-brand-foreground" />
           </div>
-          <span className="font-extrabold tracking-tight text-lg">LithoGuard AR</span>
+          <span className="font-extrabold tracking-tight text-lg">
+            LithoGuard AR
+          </span>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => setDark(!dark)} aria-label="Toggle theme">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setDark(!dark)}
+            aria-label="Toggle theme"
+          >
             {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
           <Button>Connect Sensors</Button>

@@ -17,7 +17,12 @@ export default function Index() {
   const [mountainCount, setMountainCount] = useState(14);
   const [alertsEnabled, setAlertsEnabled] = useState(true);
   const [alertsMinInterval, setAlertsMinInterval] = useState(30);
-  const [stats, setStats] = useState<RealtimeStats>({ hazardIndex: 0, velocityAvg: 0, activeRocks: 0, confidence: 0 });
+  const [stats, setStats] = useState<RealtimeStats>({
+    hazardIndex: 0,
+    velocityAvg: 0,
+    activeRocks: 0,
+    confidence: 0,
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background">
@@ -25,7 +30,18 @@ export default function Index() {
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8 h-[48vh] lg:h-[60vh]">
-            <ARScene running={running} showWireframe={showWireframe} showHeatmap={showHeatmap} showPit={showPit} showTunnels={showTunnels} showStructures={showStructures} showHills={showHills} hilliness={hilliness} mountainCount={mountainCount} onStats={setStats} />
+            <ARScene
+              running={running}
+              showWireframe={showWireframe}
+              showHeatmap={showHeatmap}
+              showPit={showPit}
+              showTunnels={showTunnels}
+              showStructures={showStructures}
+              showHills={showHills}
+              hilliness={hilliness}
+              mountainCount={mountainCount}
+              onStats={setStats}
+            />
           </div>
           <div className="lg:col-span-4 space-y-4">
             <ControlsPanel
@@ -52,11 +68,20 @@ export default function Index() {
               alertsMinInterval={alertsMinInterval}
               setAlertsMinInterval={setAlertsMinInterval}
             />
-            <AlertsFeed hazard={stats.hazardIndex} enabled={alertsEnabled} minIntervalSec={alertsMinInterval} />
+            <AlertsFeed
+              hazard={stats.hazardIndex}
+              enabled={alertsEnabled}
+              minIntervalSec={alertsMinInterval}
+            />
           </div>
         </section>
         <section>
-          <MetricsPanel hazard={stats.hazardIndex} velocityAvg={stats.velocityAvg} activeRocks={stats.activeRocks} confidence={stats.confidence} />
+          <MetricsPanel
+            hazard={stats.hazardIndex}
+            velocityAvg={stats.velocityAvg}
+            activeRocks={stats.activeRocks}
+            confidence={stats.confidence}
+          />
         </section>
       </main>
     </div>

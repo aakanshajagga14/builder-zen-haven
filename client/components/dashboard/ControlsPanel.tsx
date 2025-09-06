@@ -4,7 +4,30 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { useEffect, useState } from "react";
 
-export default function ControlsPanel({ running, setRunning, showWireframe, setShowWireframe, showHeatmap, setShowHeatmap, showPit, setShowPit, showTunnels, setShowTunnels, showStructures, setShowStructures, showHills, setShowHills, hilliness, setHilliness, mountainCount, setMountainCount, alertsEnabled, setAlertsEnabled, alertsMinInterval, setAlertsMinInterval, }: {
+export default function ControlsPanel({
+  running,
+  setRunning,
+  showWireframe,
+  setShowWireframe,
+  showHeatmap,
+  setShowHeatmap,
+  showPit,
+  setShowPit,
+  showTunnels,
+  setShowTunnels,
+  showStructures,
+  setShowStructures,
+  showHills,
+  setShowHills,
+  hilliness,
+  setHilliness,
+  mountainCount,
+  setMountainCount,
+  alertsEnabled,
+  setAlertsEnabled,
+  alertsMinInterval,
+  setAlertsMinInterval,
+}: {
   running: boolean;
   setRunning: (v: boolean) => void;
   showWireframe: boolean;
@@ -31,7 +54,10 @@ export default function ControlsPanel({ running, setRunning, showWireframe, setS
   const [heatmapIntensity, setHeatmapIntensity] = useState(60);
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--heatmap-intensity", `${heatmapIntensity}`);
+    document.documentElement.style.setProperty(
+      "--heatmap-intensity",
+      `${heatmapIntensity}`,
+    );
   }, [heatmapIntensity]);
 
   return (
@@ -39,15 +65,24 @@ export default function ControlsPanel({ running, setRunning, showWireframe, setS
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium">Simulation</p>
-          <p className="text-xs text-muted-foreground">Generate realtime rockfall events</p>
+          <p className="text-xs text-muted-foreground">
+            Generate realtime rockfall events
+          </p>
         </div>
-        <Button variant={running ? "destructive" : "default"} onClick={() => setRunning(!running)}>{running ? "Pause" : "Start"}</Button>
+        <Button
+          variant={running ? "destructive" : "default"}
+          onClick={() => setRunning(!running)}
+        >
+          {running ? "Pause" : "Start"}
+        </Button>
       </div>
 
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium">AR Wireframe</p>
-          <p className="text-xs text-muted-foreground">Show terrain mesh edges</p>
+          <p className="text-xs text-muted-foreground">
+            Show terrain mesh edges
+          </p>
         </div>
         <Switch checked={showWireframe} onCheckedChange={setShowWireframe} />
       </div>
@@ -55,68 +90,109 @@ export default function ControlsPanel({ running, setRunning, showWireframe, setS
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium">Heatmap Overlay</p>
-          <p className="text-xs text-muted-foreground">Highlight high-risk zones</p>
+          <p className="text-xs text-muted-foreground">
+            Highlight high-risk zones
+          </p>
         </div>
         <Switch checked={showHeatmap} onCheckedChange={setShowHeatmap} />
       </div>
 
       <div>
         <p className="text-sm font-medium">Heatmap Intensity</p>
-        <Slider value={[heatmapIntensity]} max={100} step={1} onValueChange={(v) => setHeatmapIntensity(v[0] ?? 60)} />
+        <Slider
+          value={[heatmapIntensity]}
+          max={100}
+          step={1}
+          onValueChange={(v) => setHeatmapIntensity(v[0] ?? 60)}
+        />
       </div>
 
       <div className="pt-2 border-t">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Mine Features</p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+          Mine Features
+        </p>
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium">Open-Pit Benches</p>
-            <p className="text-xs text-muted-foreground">Terraced slopes + haul ramp</p>
+            <p className="text-xs text-muted-foreground">
+              Terraced slopes + haul ramp
+            </p>
           </div>
           <Switch checked={showPit} onCheckedChange={setShowPit} />
         </div>
         <div className="mt-3 flex items-center justify-between">
           <div>
             <p className="text-sm font-medium">Tunnels / Adits</p>
-            <p className="text-xs text-muted-foreground">Underground entries in hillside</p>
+            <p className="text-xs text-muted-foreground">
+              Underground entries in hillside
+            </p>
           </div>
           <Switch checked={showTunnels} onCheckedChange={setShowTunnels} />
         </div>
         <div className="mt-3 flex items-center justify-between">
           <div>
             <p className="text-sm font-medium">Surface Structures</p>
-            <p className="text-xs text-muted-foreground">Silo, headframe, buildings</p>
+            <p className="text-xs text-muted-foreground">
+              Silo, headframe, buildings
+            </p>
           </div>
-          <Switch checked={showStructures} onCheckedChange={setShowStructures} />
+          <Switch
+            checked={showStructures}
+            onCheckedChange={setShowStructures}
+          />
         </div>
         <div className="mt-3 flex items-center justify-between">
           <div>
             <p className="text-sm font-medium">Surrounding Hills & Slopes</p>
-            <p className="text-xs text-muted-foreground">Context terrain around the pit</p>
+            <p className="text-xs text-muted-foreground">
+              Context terrain around the pit
+            </p>
           </div>
           <Switch checked={showHills} onCheckedChange={setShowHills} />
         </div>
         <div className="mt-3">
           <p className="text-sm font-medium">Hilliness</p>
-          <Slider value={[hilliness]} max={100} step={1} onValueChange={(v) => setHilliness(v[0] ?? 50)} />
+          <Slider
+            value={[hilliness]}
+            max={100}
+            step={1}
+            onValueChange={(v) => setHilliness(v[0] ?? 50)}
+          />
         </div>
         <div className="mt-3">
           <p className="text-sm font-medium">Mountain Density</p>
-          <Slider value={[mountainCount]} min={2} max={18} step={1} onValueChange={(v) => setMountainCount(v[0] ?? 10)} />
+          <Slider
+            value={[mountainCount]}
+            min={2}
+            max={18}
+            step={1}
+            onValueChange={(v) => setMountainCount(v[0] ?? 10)}
+          />
         </div>
       </div>
 
       <div className="pt-2 border-t">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Alerts</p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+          Alerts
+        </p>
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium">Realtime Alerts</p>
-            <p className="text-xs text-muted-foreground">Toasts for hazard spikes</p>
+            <p className="text-xs text-muted-foreground">
+              Toasts for hazard spikes
+            </p>
           </div>
           <Switch checked={alertsEnabled} onCheckedChange={setAlertsEnabled} />
         </div>
         <div className="mt-3">
           <p className="text-sm font-medium">Min Alert Interval (s)</p>
-          <Slider value={[alertsMinInterval]} min={0} max={120} step={5} onValueChange={(v) => setAlertsMinInterval(v[0] ?? 20)} />
+          <Slider
+            value={[alertsMinInterval]}
+            min={0}
+            max={120}
+            step={5}
+            onValueChange={(v) => setAlertsMinInterval(v[0] ?? 20)}
+          />
         </div>
       </div>
     </Card>
