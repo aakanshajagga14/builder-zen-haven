@@ -298,6 +298,14 @@ export default function ARScene({ running, showWireframe, showHeatmap, showPit, 
 
   const heatIntensity = Math.min(1, rocks.filter((r) => r.active).length / 80);
 
+  // Throttle upstream updates to parent to avoid setState during render warnings
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (statsRef.current) onStats(statsRef.current);
+    }, 250);
+    return () => clearInterval(id);
+  }, [onStats]);
+
   return (
     <div className="relative h-full w-full rounded-xl border border-border/60 bg-gradient-to-b from-background to-muted overflow-hidden">
       <Canvas shadows camera={{ position: [10, 10, 14], fov: 45 }}>
@@ -322,7 +330,7 @@ export default function ARScene({ running, showWireframe, showHeatmap, showPit, 
         {showHeatmap && <Heatmap intensity={heatIntensity} />}
         <OrbitControls enableDamping dampingFactor={0.1} maxPolarAngle={Math.PI / 2.05} />
         <gridHelper args={[80, 40, "#1f2937", "#111827"]} position={[0, 0.01, 0]} />
-        <FrameStepper running={running} rocksRef={rocksRef} setRocks={setRocks} onStats={onStats} />
+        <FrameStepper running={running} rocksRef={rocksRef} setRocks={setRocks} collectStats={(s) => { statsRef.current = s; }} />
       </Canvas>
       <div className="pointer-events-none absolute inset-0 flex items-start justify-between p-4">
         <div className="rounded-md bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/40 border border-border px-3 py-2">
