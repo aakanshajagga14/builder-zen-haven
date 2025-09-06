@@ -22,6 +22,9 @@ export interface ARSceneProps {
   running: boolean;
   showWireframe: boolean;
   showHeatmap: boolean;
+  showPit: boolean;
+  showTunnels: boolean;
+  showStructures: boolean;
   onStats: (stats: RealtimeStats) => void;
 }
 
@@ -53,6 +56,80 @@ function Terrain({ wireframe }: { wireframe: boolean }) {
   );
 
   return <mesh geometry={geom} material={material} receiveShadow castShadow />;
+}
+
+function PitBenches({ rings = 8, radius = 14, stepDown = 0.9 }: { rings?: number; radius?: number; stepDown?: number }) {
+  const meshes = [] as JSX.Element[];
+  for (let i = 0; i < rings; i++) {
+    const rOuter = radius - i * 1.4;
+    const rInner = rOuter - 1.0;
+    const y = -i * stepDown + 1.2;
+    if (rInner <= 1) break;
+    meshes.push(
+      <mesh key={i} position={[0, y, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[rInner, rOuter, 96]} />
+        <meshStandardMaterial color="#3b4a3f" roughness={0.95} metalness={0.02} side={THREE.DoubleSide} />
+      </mesh>,
+    );
+  }
+  return <group>{meshes}</group>;
+}
+
+class SpiralCurve extends (THREE.Curve as unknown as new () => THREE.Curve<THREE.Vector3>) {
+  private turns: number; private radius: number; private height: number;
+  constructor(turns: number, radius: number, height: number) { super(); this.turns = turns; this.radius = radius; this.height = height; }
+  getPoint(t: number) {
+    const angle = this.turns * Math.PI * 2 * t;
+    const r = this.radius * (1 - 0.75 * t);
+    const x = Math.cos(angle) * r;
+    const z = Math.sin(angle) * r;
+    const y = 1.2 - this.height * t;
+    return new THREE.Vector3(x, y, z);
+  }
+}
+
+function HaulRamp() {
+  const path = useMemo(() => new SpiralCurve(2.2, 14, 8), []);
+  const geom = useMemo(() => new THREE.TubeGeometry(path, 200, 0.3, 12, false), [path]);
+  return (
+    <mesh geometry={geom}>
+      <meshStandardMaterial color="#6b7f73" roughness={0.9} />
+    </mesh>
+  );
+}
+
+function Tunnel({ position = new THREE.Vector3(18, 0.4, -8), dir = new THREE.Vector3(-1, -0.05, 0.2) }: { position?: THREE.Vector3; dir?: THREE.Vector3 }) {
+  const geom = useMemo(() => new THREE.CylinderGeometry(1.2, 1.2, 30, 24, 1, true), []);
+  const rot = new THREE.Matrix4();
+  const axis = new THREE.Vector3(0, 1, 0).cross(dir).normalize();
+  const angle = Math.acos(new THREE.Vector3(0, 1, 0).dot(dir.normalize()));
+  rot.makeRotationAxis(axis, angle);
+  return (
+    <group position={position.toArray()}>
+      <mesh geometry={geom} rotation={[0, 0, Math.PI / 2]}>
+        <meshStandardMaterial color="#0b0f0e" roughness={1} metalness={0} side={THREE.DoubleSide} />
+      </mesh>
+    </group>
+  );
+}
+
+function Structures() {
+  return (
+    <group>
+      <mesh position={[22, 0.8, 12]}>
+        <boxGeometry args={[2.5, 1.6, 2]} />
+        <meshStandardMaterial color="#46535a" roughness={0.8} />
+      </mesh>
+      <mesh position={[22, 2.4, 12]}>
+        <boxGeometry args={[0.6, 2.8, 0.6]} />
+        <meshStandardMaterial color="#5b6b73" roughness={0.8} />
+      </mesh>
+      <mesh position={[19, 1.6, 14]}>
+        <cylinderGeometry args={[1.4, 1.4, 3.2, 24]} />
+        <meshStandardMaterial color="#546469" roughness={0.85} />
+      </mesh>
+    </group>
+  );
 }
 
 function Rocks({ rocks }: { rocks: Rock[] }) {
@@ -134,7 +211,7 @@ function FrameStepper({ running, rocksRef, setRocks, onStats }: { running: boole
   return null;
 }
 
-export default function ARScene({ running, showWireframe, showHeatmap, onStats }: ARSceneProps) {
+export default function ARScene({ running, showWireframe, showHeatmap, showPit, showTunnels, showStructures, onStats }: ARSceneProps) {
   const [rocks, setRocks] = useState<Rock[]>([]);
   const rocksRef = useRef<Rock[]>([]);
 
@@ -171,8 +248,21 @@ export default function ARScene({ running, showWireframe, showHeatmap, onStats }
         <ambientLight intensity={0.55} />
         <directionalLight position={[10, 20, 10]} intensity={1} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
         <Terrain wireframe={showWireframe} />
+        {showPit && (
+          <group>
+            <PitBenches />
+            <HaulRamp />
+          </group>
+        )}
+        {showTunnels && (
+          <group>
+            <Tunnel position={new THREE.Vector3(18, 0.4, -8)} dir={new THREE.Vector3(-1, -0.05, 0.2)} />
+            <Tunnel position={new THREE.Vector3(-20, 0.2, 10)} dir={new THREE.Vector3(1, -0.04, -0.1)} />
+          </group>
+        )}
+        {showStructures && <Structures />}
         <Rocks rocks={rocks} />
-        {showHeatmap && <Heatmap intensity={heatIntensity} />}        
+        {showHeatmap && <Heatmap intensity={heatIntensity} />}
         <OrbitControls enableDamping dampingFactor={0.1} maxPolarAngle={Math.PI / 2.05} />
         <gridHelper args={[80, 40, "#1f2937", "#111827"]} position={[0, 0.01, 0]} />
         <FrameStepper running={running} rocksRef={rocksRef} setRocks={setRocks} onStats={onStats} />
