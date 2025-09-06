@@ -4,6 +4,7 @@ import ARScene, { RealtimeStats } from "@/components/dashboard/ARScene";
 import MetricsPanel from "@/components/dashboard/MetricsPanel";
 import ControlsPanel from "@/components/dashboard/ControlsPanel";
 import AlertsFeed from "@/components/dashboard/AlertsFeed";
+import EnvPanel from "@/components/dashboard/EnvPanel";
 
 export default function Index() {
   const [running, setRunning] = useState(true);
