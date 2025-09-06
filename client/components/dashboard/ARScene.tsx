@@ -217,7 +217,7 @@ function Heatmap({ intensity }: { intensity: number }) {
   );
 }
 
-function FrameStepper({ running, rocksRef, setRocks, onStats }: { running: boolean; rocksRef: React.MutableRefObject<Rock[]>; setRocks: React.Dispatch<React.SetStateAction<Rock[]>>; onStats: (s: RealtimeStats) => void }) {
+function FrameStepper({ running, rocksRef, setRocks, collectStats }: { running: boolean; rocksRef: React.MutableRefObject<Rock[]>; setRocks: React.Dispatch<React.SetStateAction<Rock[]>>; collectStats: (s: RealtimeStats) => void }) {
   const gravity = useMemo(() => new THREE.Vector3(0, -9.81, 0), []);
   const lastTime = useRef(performance.now());
   const qDelta = useRef(new THREE.Quaternion());
@@ -257,7 +257,7 @@ function FrameStepper({ running, rocksRef, setRocks, onStats }: { running: boole
       const velocityAvg = active.length ? active.reduce((sum, r) => sum + r.velocity.length(), 0) / active.length : 0;
       const hazard = THREE.MathUtils.clamp((active.length * 0.6 + velocityAvg * 9) * 1.2, 0, 100);
       const confidence = 65 + Math.min(35, Math.max(0, 100 - Math.abs(50 - hazard)) * 0.3);
-      onStats({ hazardIndex: hazard, velocityAvg, activeRocks: active.length, confidence });
+      collectStats({ hazardIndex: hazard, velocityAvg, activeRocks: active.length, confidence });
       return next;
     });
   });
