@@ -25,6 +25,8 @@ export interface ARSceneProps {
   showPit: boolean;
   showTunnels: boolean;
   showStructures: boolean;
+  showHills: boolean;
+  hilliness: number; // 0-100
   onStats: (stats: RealtimeStats) => void;
 }
 
@@ -132,6 +134,46 @@ function Structures() {
   );
 }
 
+function Hills({ amplitude = 2.4, count = 5 }: { amplitude?: number; count?: number }) {
+  const geom = useMemo(() => {
+    const size = 90;
+    const seg = 96;
+    const geo = new THREE.PlaneGeometry(size, size, seg, seg);
+    const pos = geo.attributes.position as THREE.BufferAttribute;
+
+    // Random hill centers around the perimeter
+    const centers: [number, number, number][] = [];
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2 + Math.random() * 0.3;
+      const r = 34 + Math.random() * 6;
+      centers.push([Math.cos(angle) * r, Math.sin(angle) * r, 10 + Math.random() * 10]); // [cx, cz, radius]
+    }
+
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i);
+      const z = pos.getY(i);
+      let y = 0;
+      for (const [cx, cz, rad] of centers) {
+        const dx = x - cx;
+        const dz = z - cz;
+        const d = Math.sqrt(dx * dx + dz * dz);
+        const influence = Math.exp(-((d * d) / (rad * rad)));
+        y += influence * amplitude;
+      }
+      pos.setZ(i, y + (Math.sin((x + z) * 0.08) + Math.cos(x * 0.06)) * 0.1);
+    }
+    geo.rotateX(-Math.PI / 2);
+    geo.computeVertexNormals();
+    return geo;
+  }, [amplitude, count]);
+
+  return (
+    <mesh geometry={geom} position={[0, 0, 0]} receiveShadow>
+      <meshStandardMaterial color="#0f1a17" roughness={0.95} metalness={0.05} />
+    </mesh>
+  );
+}
+
 function Rocks({ rocks }: { rocks: Rock[] }) {
   const inst = useRef<THREE.InstancedMesh>(null);
   const color = new THREE.Color("#22c55e");
@@ -211,7 +253,7 @@ function FrameStepper({ running, rocksRef, setRocks, onStats }: { running: boole
   return null;
 }
 
-export default function ARScene({ running, showWireframe, showHeatmap, showPit, showTunnels, showStructures, onStats }: ARSceneProps) {
+export default function ARScene({ running, showWireframe, showHeatmap, showPit, showTunnels, showStructures, showHills, hilliness, onStats }: ARSceneProps) {
   const [rocks, setRocks] = useState<Rock[]>([]);
   const rocksRef = useRef<Rock[]>([]);
 
@@ -248,6 +290,7 @@ export default function ARScene({ running, showWireframe, showHeatmap, showPit, 
         <ambientLight intensity={0.55} />
         <directionalLight position={[10, 20, 10]} intensity={1} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
         <Terrain wireframe={showWireframe} />
+        {showHills && <Hills amplitude={THREE.MathUtils.lerp(0, 3.2, hilliness / 100)} />}
         {showPit && (
           <group>
             <PitBenches />
