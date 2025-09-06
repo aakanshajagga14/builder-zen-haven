@@ -12,6 +12,8 @@ export default function Index() {
   const [showPit, setShowPit] = useState(true);
   const [showTunnels, setShowTunnels] = useState(true);
   const [showStructures, setShowStructures] = useState(true);
+  const [showHills, setShowHills] = useState(true);
+  const [hilliness, setHilliness] = useState(60);
   const [stats, setStats] = useState<RealtimeStats>({ hazardIndex: 0, velocityAvg: 0, activeRocks: 0, confidence: 0 });
 
   return (
