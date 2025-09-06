@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { useEffect, useState } from "react";
 
-export default function ControlsPanel({ running, setRunning, showWireframe, setShowWireframe, showHeatmap, setShowHeatmap, showPit, setShowPit, showTunnels, setShowTunnels, showStructures, setShowStructures, }: {
+export default function ControlsPanel({ running, setRunning, showWireframe, setShowWireframe, showHeatmap, setShowHeatmap, showPit, setShowPit, showTunnels, setShowTunnels, showStructures, setShowStructures, showHills, setShowHills, hilliness, setHilliness, }: {
   running: boolean;
   setRunning: (v: boolean) => void;
   showWireframe: boolean;
@@ -17,6 +17,10 @@ export default function ControlsPanel({ running, setRunning, showWireframe, setS
   setShowTunnels: (v: boolean) => void;
   showStructures: boolean;
   setShowStructures: (v: boolean) => void;
+  showHills: boolean;
+  setShowHills: (v: boolean) => void;
+  hilliness: number;
+  setHilliness: (v: number) => void;
 }) {
   const [heatmapIntensity, setHeatmapIntensity] = useState(60);
 
@@ -77,6 +81,17 @@ export default function ControlsPanel({ running, setRunning, showWireframe, setS
             <p className="text-xs text-muted-foreground">Silo, headframe, buildings</p>
           </div>
           <Switch checked={showStructures} onCheckedChange={setShowStructures} />
+        </div>
+        <div className="mt-3 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium">Surrounding Hills & Slopes</p>
+            <p className="text-xs text-muted-foreground">Context terrain around the pit</p>
+          </div>
+          <Switch checked={showHills} onCheckedChange={setShowHills} />
+        </div>
+        <div className="mt-3">
+          <p className="text-sm font-medium">Hilliness</p>
+          <Slider value={[hilliness]} max={100} step={1} onValueChange={(v) => setHilliness(v[0] ?? 50)} />
         </div>
       </div>
     </Card>
