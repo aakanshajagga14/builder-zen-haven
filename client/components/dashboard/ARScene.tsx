@@ -54,7 +54,7 @@ function Terrain({ wireframe }: { wireframe: boolean }) {
   }, []);
 
   const material = useMemo(
-    () => new THREE.MeshStandardMaterial({ color: new THREE.Color("#1f2937"), roughness: 0.95, metalness: 0.05, wireframe }),
+    () => new THREE.MeshStandardMaterial({ color: new THREE.Color("#C9A36B"), roughness: 0.95, metalness: 0.05, wireframe }),
     [wireframe],
   );
 
@@ -71,7 +71,7 @@ function PitBenches({ rings = 8, radius = 14, stepDown = 0.9 }: { rings?: number
     meshes.push(
       <mesh key={i} position={[0, y, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[rInner, rOuter, 96]} />
-        <meshStandardMaterial color="#3b4a3f" roughness={0.95} metalness={0.02} side={THREE.DoubleSide} />
+        <meshStandardMaterial color="#C9A36B" roughness={0.95} metalness={0.02} side={THREE.DoubleSide} />
       </mesh>,
     );
   }
@@ -96,7 +96,7 @@ function HaulRamp() {
   const geom = useMemo(() => new THREE.TubeGeometry(path, 200, 0.3, 12, false), [path]);
   return (
     <mesh geometry={geom}>
-      <meshStandardMaterial color="#6b7f73" roughness={0.9} />
+      <meshStandardMaterial color="#C9A36B" roughness={0.9} />
     </mesh>
   );
 }
@@ -179,7 +179,6 @@ function Hills({ amplitude = 4.8, count = 6 }: { amplitude?: number; count?: num
 
 function Rocks({ rocks }: { rocks: Rock[] }) {
   const inst = useRef<THREE.InstancedMesh>(null);
-  const color = new THREE.Color("#22c55e");
   useEffect(() => {
     if (!inst.current) return;
     const dummy = new THREE.Object3D();
@@ -188,16 +187,14 @@ function Rocks({ rocks }: { rocks: Rock[] }) {
       dummy.scale.setScalar(r.size);
       dummy.updateMatrix();
       inst.current!.setMatrixAt(i, dummy.matrix);
-      inst.current!.setColorAt(i, r.active ? color : new THREE.Color("#9ca3af"));
     });
     inst.current.instanceMatrix.needsUpdate = true;
-    if (inst.current.instanceColor) inst.current.instanceColor.needsUpdate = true;
   }, [rocks]);
 
   return (
     <instancedMesh ref={inst} args={[undefined as unknown as THREE.BufferGeometry, undefined as unknown as THREE.Material, Math.max(rocks.length, 1)]}>
       <sphereGeometry args={[1, 16, 16]} />
-      <meshStandardMaterial roughness={0.3} metalness={0.2} />
+      <meshStandardMaterial color="#C9A36B" roughness={0.3} metalness={0.2} />
     </instancedMesh>
   );
 }
