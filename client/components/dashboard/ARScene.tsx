@@ -134,7 +134,7 @@ function Structures() {
   );
 }
 
-function Hills({ amplitude = 2.4, count = 5 }: { amplitude?: number; count?: number }) {
+function Hills({ amplitude = 4.8, count = 6 }: { amplitude?: number; count?: number }) {
   const geom = useMemo(() => {
     const size = 90;
     const seg = 96;
@@ -157,10 +157,12 @@ function Hills({ amplitude = 2.4, count = 5 }: { amplitude?: number; count?: num
         const dx = x - cx;
         const dz = z - cz;
         const d = Math.sqrt(dx * dx + dz * dz);
-        const influence = Math.exp(-((d * d) / (rad * rad)));
-        y += influence * amplitude;
+        const t = Math.max(0, 1 - d / rad);
+        const cone = Math.pow(t, 1.6); // steeper sides like mountains
+        const ridges = Math.abs(Math.sin((x + z) * 0.25) + Math.cos(x * 0.35) * 0.5) * 0.25 * t;
+        y += (cone + ridges) * amplitude;
       }
-      pos.setZ(i, y + (Math.sin((x + z) * 0.08) + Math.cos(x * 0.06)) * 0.1);
+      pos.setZ(i, y);
     }
     geo.rotateX(-Math.PI / 2);
     geo.computeVertexNormals();
@@ -169,7 +171,7 @@ function Hills({ amplitude = 2.4, count = 5 }: { amplitude?: number; count?: num
 
   return (
     <mesh geometry={geom} position={[0, 0, 0]} receiveShadow>
-      <meshStandardMaterial color="#0f1a17" roughness={0.95} metalness={0.05} />
+      <meshStandardMaterial color="#C9A36B" roughness={0.95} metalness={0.05} />
     </mesh>
   );
 }
@@ -290,7 +292,7 @@ export default function ARScene({ running, showWireframe, showHeatmap, showPit, 
         <ambientLight intensity={0.55} />
         <directionalLight position={[10, 20, 10]} intensity={1} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
         <Terrain wireframe={showWireframe} />
-        {showHills && <Hills amplitude={THREE.MathUtils.lerp(0, 3.2, hilliness / 100)} />}
+        {showHills && <Hills amplitude={THREE.MathUtils.lerp(0, 5.2, hilliness / 100)} />}
         {showPit && (
           <group>
             <PitBenches />
