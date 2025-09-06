@@ -27,6 +27,7 @@ export interface ARSceneProps {
   showStructures: boolean;
   showHills: boolean;
   hilliness: number; // 0-100
+  mountainCount: number; // number of mountain peaks
   onStats: (stats: RealtimeStats) => void;
 }
 
@@ -255,7 +256,7 @@ function FrameStepper({ running, rocksRef, setRocks, onStats }: { running: boole
   return null;
 }
 
-export default function ARScene({ running, showWireframe, showHeatmap, showPit, showTunnels, showStructures, showHills, hilliness, onStats }: ARSceneProps) {
+export default function ARScene({ running, showWireframe, showHeatmap, showPit, showTunnels, showStructures, showHills, hilliness, mountainCount, onStats }: ARSceneProps) {
   const [rocks, setRocks] = useState<Rock[]>([]);
   const rocksRef = useRef<Rock[]>([]);
 
@@ -292,7 +293,7 @@ export default function ARScene({ running, showWireframe, showHeatmap, showPit, 
         <ambientLight intensity={0.55} />
         <directionalLight position={[10, 20, 10]} intensity={1} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
         <Terrain wireframe={showWireframe} />
-        {showHills && <Hills amplitude={THREE.MathUtils.lerp(0, 5.2, hilliness / 100)} />}
+        {showHills && <Hills amplitude={THREE.MathUtils.lerp(0, 12, hilliness / 100)} count={Math.max(2, Math.round(mountainCount))} />}
         {showPit && (
           <group>
             <PitBenches />
