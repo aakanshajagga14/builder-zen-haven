@@ -377,12 +377,11 @@ export default function ARScene({
   hilliness,
   mountainCount,
   onStats,
+  statsOutputEnabled = true,
 }: ARSceneProps) {
   const [rocks, setRocks] = useState<Rock[]>([]);
   const rocksRef = useRef<Rock[]>([]);
   const statsRef = useRef<RealtimeStats | null>(null);
-  const propsStatsOutputEnabled = useRef<boolean>(true);
-  useEffect(() => { propsStatsOutputEnabled.current = props.statsOutputEnabled ?? true; });
 
   useEffect(() => {
     rocksRef.current = rocks;
@@ -437,10 +436,10 @@ export default function ARScene({
   // Throttle upstream updates to parent to avoid setState during render warnings
   useEffect(() => {
     const id = setInterval(() => {
-      if (statsRef.current) onStats(statsRef.current);
+      if (statsOutputEnabled && statsRef.current) onStats(statsRef.current);
     }, 250);
     return () => clearInterval(id);
-  }, [onStats]);
+  }, [onStats, statsOutputEnabled]);
 
   return (
     <div className="relative h-full w-full rounded-xl border border-border/60 bg-gradient-to-b from-background to-muted overflow-hidden">
