@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Html } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { useMemo, useRef, useState, useEffect } from "react";
 
@@ -25,79 +25,9 @@ export interface ARSceneProps {
   onStats: (stats: RealtimeStats) => void;
 }
 
-function useRockfallSimulation(running: boolean) {
-  const [rocks, setRocks] = useState<Rock[]>([]);
-  const gravity = useMemo(() => new THREE.Vector3(0, -9.81, 0), []);
-
-  // Spawn new rocks periodically
-  useEffect(() => {
-    if (!running) return;
-    const interval = setInterval(() => {
-      setRocks((prev) => {
-        const id = prev.length ? prev[prev.length - 1].id + 1 : 1;
-        const x = (Math.random() - 0.5) * 40;
-        const z = (Math.random() - 0.5) * 40;
-        const size = 0.2 + Math.random() * 0.8;
-        const velocity = new THREE.Vector3(
-          (Math.random() - 0.5) * 2,
-          -2 - Math.random() * 2,
-          (Math.random() - 0.5) * 2,
-        );
-        return [
-          ...prev,
-          {
-            id,
-            position: new THREE.Vector3(x, 8 + Math.random() * 4, z),
-            velocity,
-            size,
-            active: true,
-          },
-        ].slice(-150);
-      });
-    }, 900);
-    return () => clearInterval(interval);
-  }, [running]);
-
-  // Physics update step
-  const lastTimeRef = useRef<number>(performance.now());
-  useFrame(() => {
-    const now = performance.now();
-    const dt = Math.min((now - lastTimeRef.current) / 1000, 0.05);
-    lastTimeRef.current = now;
-
-    if (!running || rocks.length === 0) return;
-
-    setRocks((prev) => {
-      const next = prev.map((r) => {
-        if (!r.active) return r;
-        const v = r.velocity.clone().add(gravity.clone().multiplyScalar(dt));
-        let p = r.position.clone().add(v.clone().multiplyScalar(dt));
-
-        // Simple terrain collision: y = terrainHeight(x,z)
-        const terrainY = terrainHeight(p.x, p.z);
-        if (p.y - r.size <= terrainY) {
-          p.y = terrainY + r.size;
-          // dampen velocity and slide
-          v.y *= -0.25;
-          v.x *= 0.94;
-          v.z *= 0.94;
-          if (v.length() < 0.35) {
-            return { ...r, position: p, velocity: new THREE.Vector3(), active: false };
-          }
-        }
-        return { ...r, position: p, velocity: v };
-      });
-      return next;
-    });
-  });
-
-  return rocks;
-}
-
 function terrainHeight(x: number, z: number) {
-  // Pseudo heightfield using trigonometric ridges
   const h = Math.sin(x * 0.25) * 0.75 + Math.cos(z * 0.18) * 0.5 + Math.sin((x + z) * 0.12) * 0.6;
-  return h - 1.2; // shift down
+  return h - 1.2;
 }
 
 function Terrain({ wireframe }: { wireframe: boolean }) {
@@ -165,19 +95,75 @@ function Heatmap({ intensity }: { intensity: number }) {
   );
 }
 
-export default function ARScene({ running, showWireframe, showHeatmap, onStats }: ARSceneProps) {
-  const rocks = useRockfallSimulation(running);
+function FrameStepper({ running, rocksRef, setRocks, onStats }: { running: boolean; rocksRef: React.MutableRefObject<Rock[]>; setRocks: React.Dispatch<React.SetStateAction<Rock[]>>; onStats: (s: RealtimeStats) => void }) {
+  const gravity = useMemo(() => new THREE.Vector3(0, -9.81, 0), []);
+  const lastTime = useRef(performance.now());
 
-  // Emit realtime stats
   useFrame(() => {
-    const active = rocks.filter((r) => r.active);
-    const velocityAvg = active.length
-      ? active.reduce((sum, r) => sum + r.velocity.length(), 0) / active.length
-      : 0;
-    const hazard = THREE.MathUtils.clamp((active.length * 0.6 + velocityAvg * 9) * 1.2, 0, 100);
-    const confidence = 65 + Math.min(35, Math.max(0, 100 - Math.abs(50 - hazard)) * 0.3);
-    onStats({ hazardIndex: hazard, velocityAvg, activeRocks: active.length, confidence });
+    const now = performance.now();
+    const dt = Math.min((now - lastTime.current) / 1000, 0.05);
+    lastTime.current = now;
+    if (!running || rocksRef.current.length === 0) return;
+
+    setRocks((prev) => {
+      const next = prev.map((r) => {
+        if (!r.active) return r;
+        const v = r.velocity.clone().add(gravity.clone().multiplyScalar(dt));
+        let p = r.position.clone().add(v.clone().multiplyScalar(dt));
+        const terrainY = terrainHeight(p.x, p.z);
+        if (p.y - r.size <= terrainY) {
+          p.y = terrainY + r.size;
+          v.y *= -0.25;
+          v.x *= 0.94;
+          v.z *= 0.94;
+          if (v.length() < 0.35) {
+            return { ...r, position: p, velocity: new THREE.Vector3(), active: false };
+          }
+        }
+        return { ...r, position: p, velocity: v };
+      });
+      rocksRef.current = next;
+      const active = next.filter((r) => r.active);
+      const velocityAvg = active.length ? active.reduce((sum, r) => sum + r.velocity.length(), 0) / active.length : 0;
+      const hazard = THREE.MathUtils.clamp((active.length * 0.6 + velocityAvg * 9) * 1.2, 0, 100);
+      const confidence = 65 + Math.min(35, Math.max(0, 100 - Math.abs(50 - hazard)) * 0.3);
+      onStats({ hazardIndex: hazard, velocityAvg, activeRocks: active.length, confidence });
+      return next;
+    });
   });
+  return null;
+}
+
+export default function ARScene({ running, showWireframe, showHeatmap, onStats }: ARSceneProps) {
+  const [rocks, setRocks] = useState<Rock[]>([]);
+  const rocksRef = useRef<Rock[]>([]);
+
+  useEffect(() => {
+    rocksRef.current = rocks;
+  }, [rocks]);
+
+  // Spawn new rocks periodically
+  useEffect(() => {
+    if (!running) return;
+    const interval = setInterval(() => {
+      setRocks((prev) => {
+        const id = prev.length ? prev[prev.length - 1].id + 1 : 1;
+        const x = (Math.random() - 0.5) * 40;
+        const z = (Math.random() - 0.5) * 40;
+        const size = 0.2 + Math.random() * 0.8;
+        const velocity = new THREE.Vector3((Math.random() - 0.5) * 2, -2 - Math.random() * 2, (Math.random() - 0.5) * 2);
+        const next = [
+          ...prev,
+          { id, position: new THREE.Vector3(x, 8 + Math.random() * 4, z), velocity, size, active: true },
+        ].slice(-150);
+        rocksRef.current = next;
+        return next;
+      });
+    }, 900);
+    return () => clearInterval(interval);
+  }, [running]);
+
+  const heatIntensity = Math.min(1, rocks.filter((r) => r.active).length / 80);
 
   return (
     <div className="relative h-full w-full rounded-xl border border-border/60 bg-gradient-to-b from-background to-muted overflow-hidden">
@@ -186,9 +172,10 @@ export default function ARScene({ running, showWireframe, showHeatmap, onStats }
         <directionalLight position={[10, 20, 10]} intensity={1} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
         <Terrain wireframe={showWireframe} />
         <Rocks rocks={rocks} />
-        {showHeatmap && <Heatmap intensity={Math.min(1, rocks.filter((r) => r.active).length / 80)} />}
+        {showHeatmap && <Heatmap intensity={heatIntensity} />}        
         <OrbitControls enableDamping dampingFactor={0.1} maxPolarAngle={Math.PI / 2.05} />
         <gridHelper args={[80, 40, "#1f2937", "#111827"]} position={[0, 0.01, 0]} />
+        <FrameStepper running={running} rocksRef={rocksRef} setRocks={setRocks} onStats={onStats} />
       </Canvas>
       <div className="pointer-events-none absolute inset-0 flex items-start justify-between p-4">
         <div className="rounded-md bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/40 border border-border px-3 py-2">
