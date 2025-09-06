@@ -312,7 +312,7 @@ export default function ARScene({ running, showWireframe, showHeatmap, showPit, 
         <ambientLight intensity={0.55} />
         <directionalLight position={[10, 20, 10]} intensity={1} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
         <Terrain wireframe={showWireframe} />
-        {showHills && <Hills amplitude={THREE.MathUtils.lerp(0, 12, hilliness / 100)} count={Math.max(2, Math.round(mountainCount))} />}
+        {showHills && <Hills amplitude={THREE.MathUtils.lerp(0, 24, hilliness / 100)} count={Math.max(2, Math.round(mountainCount))} />}
         {showPit && (
           <group>
             <PitBenches />
