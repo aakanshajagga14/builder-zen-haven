@@ -30,19 +30,22 @@ export default function Index() {
       <Header />
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8 h-[48vh] lg:h-[60vh]">
-            <ARScene
-              running={running}
-              showWireframe={showWireframe}
-              showHeatmap={showHeatmap}
-              showPit={showPit}
-              showTunnels={showTunnels}
-              showStructures={showStructures}
-              showHills={showHills}
-              hilliness={hilliness}
-              mountainCount={mountainCount}
-              onStats={setStats}
-            />
+          <div className="lg:col-span-8 space-y-4">
+            <div className="h-[48vh] lg:h-[60vh]">
+              <ARScene
+                running={running}
+                showWireframe={showWireframe}
+                showHeatmap={showHeatmap}
+                showPit={showPit}
+                showTunnels={showTunnels}
+                showStructures={showStructures}
+                showHills={showHills}
+                hilliness={hilliness}
+                mountainCount={mountainCount}
+                onStats={setStats}
+              />
+            </div>
+            <EnvPanel />
           </div>
           <div className="lg:col-span-4 space-y-4">
             <ControlsPanel
