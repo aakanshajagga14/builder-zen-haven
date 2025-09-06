@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { useEffect, useState } from "react";
 
-export default function ControlsPanel({ running, setRunning, showWireframe, setShowWireframe, showHeatmap, setShowHeatmap, showPit, setShowPit, showTunnels, setShowTunnels, showStructures, setShowStructures, showHills, setShowHills, hilliness, setHilliness, }: {
+export default function ControlsPanel({ running, setRunning, showWireframe, setShowWireframe, showHeatmap, setShowHeatmap, showPit, setShowPit, showTunnels, setShowTunnels, showStructures, setShowStructures, showHills, setShowHills, hilliness, setHilliness, mountainCount, setMountainCount, alertsEnabled, setAlertsEnabled, alertsMinInterval, setAlertsMinInterval, }: {
   running: boolean;
   setRunning: (v: boolean) => void;
   showWireframe: boolean;
@@ -21,6 +21,12 @@ export default function ControlsPanel({ running, setRunning, showWireframe, setS
   setShowHills: (v: boolean) => void;
   hilliness: number;
   setHilliness: (v: number) => void;
+  mountainCount: number;
+  setMountainCount: (v: number) => void;
+  alertsEnabled: boolean;
+  setAlertsEnabled: (v: boolean) => void;
+  alertsMinInterval: number;
+  setAlertsMinInterval: (v: number) => void;
 }) {
   const [heatmapIntensity, setHeatmapIntensity] = useState(60);
 
@@ -92,6 +98,25 @@ export default function ControlsPanel({ running, setRunning, showWireframe, setS
         <div className="mt-3">
           <p className="text-sm font-medium">Hilliness</p>
           <Slider value={[hilliness]} max={100} step={1} onValueChange={(v) => setHilliness(v[0] ?? 50)} />
+        </div>
+        <div className="mt-3">
+          <p className="text-sm font-medium">Mountain Density</p>
+          <Slider value={[mountainCount]} min={2} max={18} step={1} onValueChange={(v) => setMountainCount(v[0] ?? 10)} />
+        </div>
+      </div>
+
+      <div className="pt-2 border-t">
+        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Alerts</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium">Realtime Alerts</p>
+            <p className="text-xs text-muted-foreground">Toasts for hazard spikes</p>
+          </div>
+          <Switch checked={alertsEnabled} onCheckedChange={setAlertsEnabled} />
+        </div>
+        <div className="mt-3">
+          <p className="text-sm font-medium">Min Alert Interval (s)</p>
+          <Slider value={[alertsMinInterval]} min={0} max={120} step={5} onValueChange={(v) => setAlertsMinInterval(v[0] ?? 20)} />
         </div>
       </div>
     </Card>
