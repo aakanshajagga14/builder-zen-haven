@@ -9,6 +9,8 @@ export type Rock = {
   velocity: THREE.Vector3;
   size: number;
   active: boolean;
+  orientation: THREE.Quaternion;
+  spin: THREE.Vector3;
 };
 
 export type RealtimeStats = {
@@ -184,6 +186,7 @@ function Rocks({ rocks }: { rocks: Rock[] }) {
     const dummy = new THREE.Object3D();
     rocks.forEach((r, i) => {
       dummy.position.copy(r.position);
+      dummy.quaternion.copy(r.orientation);
       dummy.scale.setScalar(r.size);
       dummy.updateMatrix();
       inst.current!.setMatrixAt(i, dummy.matrix);
@@ -193,8 +196,8 @@ function Rocks({ rocks }: { rocks: Rock[] }) {
 
   return (
     <instancedMesh ref={inst} args={[undefined as unknown as THREE.BufferGeometry, undefined as unknown as THREE.Material, Math.max(rocks.length, 1)]}>
-      <sphereGeometry args={[1, 16, 16]} />
-      <meshStandardMaterial color="#C9A36B" roughness={0.3} metalness={0.2} />
+      <icosahedronGeometry args={[1, 0]} />
+      <meshStandardMaterial color="#C9A36B" roughness={0.95} metalness={0.05} flatShading />
     </instancedMesh>
   );
 }
@@ -217,6 +220,7 @@ function Heatmap({ intensity }: { intensity: number }) {
 function FrameStepper({ running, rocksRef, setRocks, onStats }: { running: boolean; rocksRef: React.MutableRefObject<Rock[]>; setRocks: React.Dispatch<React.SetStateAction<Rock[]>>; onStats: (s: RealtimeStats) => void }) {
   const gravity = useMemo(() => new THREE.Vector3(0, -9.81, 0), []);
   const lastTime = useRef(performance.now());
+  const qDelta = useRef(new THREE.Quaternion());
 
   useFrame(() => {
     const now = performance.now();
@@ -238,6 +242,13 @@ function FrameStepper({ running, rocksRef, setRocks, onStats }: { running: boole
           if (v.length() < 0.35) {
             return { ...r, position: p, velocity: new THREE.Vector3(), active: false };
           }
+        }
+        // update orientation by spin
+        const spinLen = r.spin.length();
+        if (spinLen > 0) {
+          qDelta.current.setFromAxisAngle(r.spin.clone().normalize(), spinLen * dt);
+          const newOrient = r.orientation.clone().multiply(qDelta.current);
+          return { ...r, position: p, velocity: v, orientation: newOrient };
         }
         return { ...r, position: p, velocity: v };
       });
@@ -269,11 +280,14 @@ export default function ARScene({ running, showWireframe, showHeatmap, showPit, 
         const id = prev.length ? prev[prev.length - 1].id + 1 : 1;
         const x = (Math.random() - 0.5) * 40;
         const z = (Math.random() - 0.5) * 40;
-        const size = 0.2 + Math.random() * 0.8;
+        const size = 0.25 + Math.random() * 0.9;
         const velocity = new THREE.Vector3((Math.random() - 0.5) * 2, -2 - Math.random() * 2, (Math.random() - 0.5) * 2);
+        const e = new THREE.Euler(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+        const orientation = new THREE.Quaternion().setFromEuler(e);
+        const spin = new THREE.Vector3((Math.random() - 0.5) * 3, (Math.random() - 0.5) * 3, (Math.random() - 0.5) * 3);
         const next = [
           ...prev,
-          { id, position: new THREE.Vector3(x, 8 + Math.random() * 4, z), velocity, size, active: true },
+          { id, position: new THREE.Vector3(x, 8 + Math.random() * 4, z), velocity, size, active: true, orientation, spin },
         ].slice(-150);
         rocksRef.current = next;
         return next;
