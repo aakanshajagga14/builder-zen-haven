@@ -5,6 +5,7 @@ import MetricsPanel from "@/components/dashboard/MetricsPanel";
 import ControlsPanel from "@/components/dashboard/ControlsPanel";
 import AlertsFeed from "@/components/dashboard/AlertsFeed";
 import EnvPanel from "@/components/dashboard/EnvPanel";
+import MLPanel from "@/components/dashboard/MLPanel";
 
 export default function Index() {
   const [running, setRunning] = useState(true);
@@ -43,9 +44,11 @@ export default function Index() {
                 hilliness={hilliness}
                 mountainCount={mountainCount}
                 onStats={setStats}
-              />
+              statsOutputEnabled={false}
+            />
             </div>
             <EnvPanel />
+            <MLPanel onStats={(s) => setStats(s)} />
           </div>
           <div className="lg:col-span-4 space-y-4">
             <ControlsPanel
