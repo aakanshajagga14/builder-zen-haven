@@ -1,7 +1,18 @@
-export type RFBox = { x: number; y: number; width: number; height: number; class: string; confidence: number };
+export type RFBox = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  class: string;
+  confidence: number;
+};
 export type RFResult = { predictions: RFBox[] };
 
-export async function inferImageBlob(blob: Blob, modelId: string, apiKey?: string): Promise<RFResult> {
+export async function inferImageBlob(
+  blob: Blob,
+  modelId: string,
+  apiKey?: string,
+): Promise<RFResult> {
   const key = apiKey || import.meta.env.VITE_ROBOFLOW_API_KEY;
   if (!key) throw new Error("Missing VITE_ROBOFLOW_API_KEY");
   const url = `https://detect.roboflow.com/${modelId}?api_key=${encodeURIComponent(key)}&format=json`;

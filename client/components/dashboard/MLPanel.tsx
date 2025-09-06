@@ -7,9 +7,18 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { inferImageBlob, RFBox } from "@/lib/roboflow";
 
-export type MLStats = { hazardIndex: number; velocityAvg: number; activeRocks: number; confidence: number };
+export type MLStats = {
+  hazardIndex: number;
+  velocityAvg: number;
+  activeRocks: number;
+  confidence: number;
+};
 
-export default function MLPanel({ onStats }: { onStats: (s: MLStats) => void }) {
+export default function MLPanel({
+  onStats,
+}: {
+  onStats: (s: MLStats) => void;
+}) {
   const [enabled, setEnabled] = useState(false);
   const [classesStr, setClassesStr] = useState("rock, rockfall, falling_rock");
   const [fps, setFps] = useState(2);
@@ -20,12 +29,22 @@ export default function MLPanel({ onStats }: { onStats: (s: MLStats) => void }) 
   const lastCentersRef = useRef<{ x: number; y: number }[]>([]);
   const lastTsRef = useRef<number>(0);
 
-  const classes = useMemo(() => classesStr.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean), [classesStr]);
+  const classes = useMemo(
+    () =>
+      classesStr
+        .split(",")
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean),
+    [classesStr],
+  );
 
   const start = useCallback(async () => {
     try {
       setStatus("Starting camera...");
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+        audio: false,
+      });
       if (!videoRef.current) return;
       videoRef.current.srcObject = stream;
       await videoRef.current.play();
@@ -73,14 +92,19 @@ export default function MLPanel({ onStats }: { onStats: (s: MLStats) => void }) 
       const ctx = c.getContext("2d");
       if (!ctx) return;
       ctx.drawImage(v, 0, 0, c.width, c.height);
-      const blob = await new Promise<Blob | null>((res) => c.toBlob((b) => res(b), "image/jpeg", 0.85));
+      const blob = await new Promise<Blob | null>((res) =>
+        c.toBlob((b) => res(b), "image/jpeg", 0.85),
+      );
       if (!blob) {
         raf = requestAnimationFrame(tick);
         return;
       }
       try {
         const out = await inferImageBlob(blob, modelId);
-        const preds: RFBox[] = (out?.predictions || []).filter((p) => classes.length === 0 || classes.includes(p.class.toLowerCase()));
+        const preds: RFBox[] = (out?.predictions || []).filter(
+          (p) =>
+            classes.length === 0 || classes.includes(p.class.toLowerCase()),
+        );
         const centers = preds.map((p) => ({ x: p.x, y: p.y }));
         // naive match: nearest previous center
         let totalDisp = 0;
@@ -89,15 +113,23 @@ export default function MLPanel({ onStats }: { onStats: (s: MLStats) => void }) 
           let jBest = -1;
           lastCentersRef.current.forEach((c0, j) => {
             const d = Math.hypot(c1.x - c0.x, c1.y - c0.y);
-            if (d < best) { best = d; jBest = j; }
+            if (d < best) {
+              best = d;
+              jBest = j;
+            }
           });
           if (jBest >= 0) totalDisp += best;
         });
-        const pxPerSec = (totalDisp / Math.max(1, centers.length)) * (fps);
+        const pxPerSec = (totalDisp / Math.max(1, centers.length)) * fps;
         const velocityAvg = isFinite(pxPerSec) ? pxPerSec / 100 : 0; // scaled to ~m/s
         const activeRocks = preds.length;
-        const avgConf = preds.length ? preds.reduce((s, p) => s + p.confidence, 0) / preds.length : 0;
-        const hazardIndex = Math.min(100, Math.round(activeRocks * 12 + avgConf * 40 + velocityAvg * 20));
+        const avgConf = preds.length
+          ? preds.reduce((s, p) => s + p.confidence, 0) / preds.length
+          : 0;
+        const hazardIndex = Math.min(
+          100,
+          Math.round(activeRocks * 12 + avgConf * 40 + velocityAvg * 20),
+        );
         const confidence = Math.round(Math.min(100, 50 + avgConf * 50));
         onStats({ hazardIndex, velocityAvg, activeRocks, confidence });
         lastCentersRef.current = centers;
@@ -126,12 +158,23 @@ export default function MLPanel({ onStats }: { onStats: (s: MLStats) => void }) 
           <Input value={modelId} onChange={(e) => setModelId(e.target.value)} />
         </div>
         <div className="grid gap-1">
-          <label className="text-xs text-muted-foreground">Falling Classes (comma-separated)</label>
-          <Input value={classesStr} onChange={(e) => setClassesStr(e.target.value)} />
+          <label className="text-xs text-muted-foreground">
+            Falling Classes (comma-separated)
+          </label>
+          <Input
+            value={classesStr}
+            onChange={(e) => setClassesStr(e.target.value)}
+          />
         </div>
         <div>
           <p className="text-xs text-muted-foreground mb-1">FPS</p>
-          <Slider value={[fps]} min={1} max={8} step={1} onValueChange={(v) => setFps(v[0] ?? 2)} />
+          <Slider
+            value={[fps]}
+            min={1}
+            max={8}
+            step={1}
+            onValueChange={(v) => setFps(v[0] ?? 2)}
+          />
         </div>
         <div className="hidden">
           <video ref={videoRef} playsInline muted />

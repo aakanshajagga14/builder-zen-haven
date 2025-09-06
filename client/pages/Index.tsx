@@ -46,8 +46,8 @@ export default function Index() {
                 hilliness={hilliness}
                 mountainCount={mountainCount}
                 onStats={setStats}
-              statsOutputEnabled={false}
-            />
+                statsOutputEnabled={false}
+              />
             </div>
             <EnvPanel />
             <MLPanel onStats={(s) => setStats(s)} />
