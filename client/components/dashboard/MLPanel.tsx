@@ -16,8 +16,10 @@ export type MLStats = {
 
 export default function MLPanel({
   onStats,
+  onEnabledChange,
 }: {
   onStats: (s: MLStats) => void;
+  onEnabledChange?: (enabled: boolean) => void;
 }) {
   const [enabled, setEnabled] = useState(false);
   const [classesStr, setClassesStr] = useState("rock, rockfall, falling_rock");
@@ -68,8 +70,9 @@ export default function MLPanel({
   useEffect(() => {
     if (enabled) start();
     else stop();
+    onEnabledChange?.(enabled);
     return () => stop();
-  }, [enabled, start, stop]);
+  }, [enabled, start, stop, onEnabledChange]);
 
   useEffect(() => {
     let raf = 0;
