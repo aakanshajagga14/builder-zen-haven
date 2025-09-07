@@ -31,7 +31,8 @@ async function geocode(name: string): Promise<Geo | null> {
         const json = await res.json();
         const list: any[] = json?.results || [];
         if (list.length) {
-          const preferred = list.find((x) => /india/i.test(x.country || "")) || list[0];
+          const preferred =
+            list.find((x) => /india/i.test(x.country || "")) || list[0];
           return {
             name: preferred.name,
             lat: preferred.latitude,
@@ -45,7 +46,9 @@ async function geocode(name: string): Promise<Geo | null> {
 
     try {
       const url2 = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&addressdetails=1&q=${encodeURIComponent(q)}`;
-      const res2 = await fetch(url2, { headers: { Accept: "application/json" } });
+      const res2 = await fetch(url2, {
+        headers: { Accept: "application/json" },
+      });
       if (res2.ok) {
         const arr = await res2.json();
         const hit = arr?.[0];
