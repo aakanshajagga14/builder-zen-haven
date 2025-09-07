@@ -1,6 +1,5 @@
 import { useState } from "react";
 import Header from "@/components/layout/Header";
-import { useState } from "react";
 import ARScene, { RealtimeStats } from "@/components/dashboard/ARScene";
 import MetricsPanel from "@/components/dashboard/MetricsPanel";
 import ControlsPanel from "@/components/dashboard/ControlsPanel";
