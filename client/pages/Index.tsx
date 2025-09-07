@@ -49,7 +49,7 @@ export default function Index() {
               />
             </div>
             <EnvPanel />
-            <MLPanel onStats={(s) => setStats(s)} />
+            <MLPanel onStats={(s) => setStats(s)} onEnabledChange={setMlActive} />
           </div>
           <div className="lg:col-span-4 space-y-4">
             <ControlsPanel
