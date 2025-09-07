@@ -107,10 +107,9 @@ export default function MLPanel({
       }
       try {
         const out = await inferImageBlob(blob, modelId);
-        const preds: RFBox[] = (out?.predictions || []).filter(
-          (p) =>
-            classes.length === 0 || classes.includes(p.class.toLowerCase()),
-        );
+        const preds: RFBox[] = (out?.predictions || [])
+          .filter((p) => p.confidence >= confThresh)
+          .filter((p) => classes.length === 0 || classes.includes(p.class.toLowerCase()));
         const centers = preds.map((p) => ({ x: p.x, y: p.y }));
         // naive match: nearest previous center
         let totalDisp = 0;
@@ -127,17 +126,24 @@ export default function MLPanel({
           if (jBest >= 0) totalDisp += best;
         });
         const pxPerSec = (totalDisp / Math.max(1, centers.length)) * fps;
-        const velocityAvg = isFinite(pxPerSec) ? pxPerSec / 100 : 0; // scaled to ~m/s
-        const activeRocks = preds.length;
-        const avgConf = preds.length
-          ? preds.reduce((s, p) => s + p.confidence, 0) / preds.length
-          : 0;
-        const hazardIndex = Math.min(
-          100,
-          Math.round(activeRocks * 12 + avgConf * 40 + velocityAvg * 20),
-        );
-        const confidence = Math.round(Math.min(100, 50 + avgConf * 50));
-        onStats({ hazardIndex, velocityAvg, activeRocks, confidence });
+        const rawVelocity = isFinite(pxPerSec) ? pxPerSec / 100 : 0;
+        const rawActive = preds.length;
+        const rawConf = preds.length ? preds.reduce((s, p) => s + p.confidence, 0) / preds.length : 0;
+
+        const prev = prevStatsRef.current;
+        const a = Math.min(0.95, Math.max(0.05, smoothAlpha));
+        const velocityAvg = prev.velocityAvg + a * (rawVelocity - prev.velocityAvg);
+        const activeRocks = prev.activeRocks + a * (rawActive - prev.activeRocks);
+        const confidence = prev.confidence + a * ((rawConf * 100) - prev.confidence);
+
+        const hazardTarget = Math.min(100, Math.max(0, activeRocks * 10 + (confidence / 100) * 40 + velocityAvg * 20));
+        const maxDeltaPerSec = 10;
+        const maxStep = maxDeltaPerSec / Math.max(1, fps);
+        const hazardIndex = prev.hazardIndex + Math.max(-maxStep, Math.min(maxStep, hazardTarget - prev.hazardIndex));
+
+        const stats = { hazardIndex, velocityAvg, activeRocks, confidence } as MLStats;
+        prevStatsRef.current = stats;
+        onStats(stats);
         lastCentersRef.current = centers;
         setStatus(`Detections: ${activeRocks}`);
       } catch (e: any) {
@@ -181,6 +187,14 @@ export default function MLPanel({
             step={1}
             onValueChange={(v) => setFps(v[0] ?? 2)}
           />
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground mb-1">Confidence Threshold ({Math.round(confThresh*100)}%)</p>
+          <Slider value={[confThresh]} min={0} max={1} step={0.05} onValueChange={(v) => setConfThresh(v[0] ?? 0.6)} />
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground mb-1">Smoothing (EMA α = {smoothAlpha.toFixed(2)})</p>
+          <Slider value={[smoothAlpha]} min={0.05} max={0.8} step={0.05} onValueChange={(v) => setSmoothAlpha(v[0] ?? 0.35)} />
         </div>
         <div className="hidden">
           <video ref={videoRef} playsInline muted />
