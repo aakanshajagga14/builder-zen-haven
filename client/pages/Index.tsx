@@ -5,7 +5,6 @@ import MetricsPanel from "@/components/dashboard/MetricsPanel";
 import ControlsPanel from "@/components/dashboard/ControlsPanel";
 import AlertsFeed from "@/components/dashboard/AlertsFeed";
 import SitePredictor from "@/components/dashboard/SitePredictor";
-import MLPanel from "@/components/dashboard/MLPanel";
 
 export default function Index() {
   const [running, setRunning] = useState(true);
