@@ -24,12 +24,15 @@ export default function MLPanel({
   const [enabled, setEnabled] = useState(false);
   const [classesStr, setClassesStr] = useState("rock, rockfall, falling_rock");
   const [fps, setFps] = useState(2);
+  const [confThresh, setConfThresh] = useState(0.6);
+  const [smoothAlpha, setSmoothAlpha] = useState(0.35); // EMA factor
   const [status, setStatus] = useState<string>("Idle");
   const [modelId, setModelId] = useState("object-detection-fbtj0/2");
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const lastCentersRef = useRef<{ x: number; y: number }[]>([]);
   const lastTsRef = useRef<number>(0);
+  const prevStatsRef = useRef<MLStats>({ hazardIndex: 0, velocityAvg: 0, activeRocks: 0, confidence: 50 });
 
   const classes = useMemo(
     () =>
