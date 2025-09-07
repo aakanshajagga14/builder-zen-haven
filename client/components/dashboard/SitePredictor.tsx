@@ -21,95 +21,110 @@ type Geo = {
 };
 
 async function geocode(name: string): Promise<Geo | null> {
-  const q = /india/i.test(name) ? name : `${name}, India`;
-  // Try Open-Meteo geocoder first (broader search)
-  try {
-    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=10&language=en&format=json`;
-    const res = await fetch(url);
-    if (res.ok) {
-      const json = await res.json();
-      const list: any[] = json?.results || [];
-      if (list.length) {
-        const preferred =
-          list.find((x) => /india/i.test(x.country || "")) || list[0];
-        return {
-          name: preferred.name,
-          lat: preferred.latitude,
-          lon: preferred.longitude,
-          admin1: preferred.admin1,
-          country: preferred.country,
-        };
+  const candidates = [name, /india/i.test(name) ? name : `${name}, India`];
+  // Try Open-Meteo first, then Nominatim, across both candidates
+  for (const q of candidates) {
+    try {
+      const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=10&language=en&format=json`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const json = await res.json();
+        const list: any[] = json?.results || [];
+        if (list.length) {
+          const preferred = list.find((x) => /india/i.test(x.country || "")) || list[0];
+          return {
+            name: preferred.name,
+            lat: preferred.latitude,
+            lon: preferred.longitude,
+            admin1: preferred.admin1,
+            country: preferred.country,
+          };
+        }
       }
-    }
-  } catch {}
+    } catch {}
 
-  // Fallback: Nominatim (OpenStreetMap) - robust, CORS-enabled
-  try {
-    const url2 = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&addressdetails=1&q=${encodeURIComponent(q)}`;
-    const res2 = await fetch(url2, { headers: { Accept: "application/json" } });
-    if (res2.ok) {
-      const arr = await res2.json();
-      const hit = arr?.[0];
-      if (hit) {
-        const addr = hit.address || {};
-        return {
-          name: hit.display_name?.split(",")[0] || name,
-          lat: parseFloat(hit.lat),
-          lon: parseFloat(hit.lon),
-          admin1: addr.state || addr.county,
-          country: addr.country,
-        };
+    try {
+      const url2 = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&addressdetails=1&q=${encodeURIComponent(q)}`;
+      const res2 = await fetch(url2, { headers: { Accept: "application/json" } });
+      if (res2.ok) {
+        const arr = await res2.json();
+        const hit = arr?.[0];
+        if (hit) {
+          const addr = hit.address || {};
+          return {
+            name: hit.display_name?.split(",")[0] || name,
+            lat: parseFloat(hit.lat),
+            lon: parseFloat(hit.lon),
+            admin1: addr.state || addr.county,
+            country: addr.country,
+          };
+        }
       }
-    }
-  } catch {}
-
+    } catch {}
+  }
   return null;
 }
 
 async function elevationAround(lat: number, lon: number): Promise<number[]> {
-  const offsets = [-0.03, -0.015, 0, 0.015, 0.03];
-  const pts: string[] = [];
-  for (const dx of offsets)
-    for (const dy of offsets)
-      pts.push(`${(lat + dx).toFixed(5)},${(lon + dy).toFixed(5)}`);
-  const res = await fetch(
-    `https://api.open-elevation.com/api/v1/lookup?locations=${pts.join("|")}`,
-  );
-  if (!res.ok) throw new Error("Elevation failed");
-  const json = await res.json();
-  return (json?.results || []).map((r: any) => r.elevation as number);
+  try {
+    const offsets = [-0.03, -0.015, 0, 0.015, 0.03];
+    const pts: string[] = [];
+    for (const dx of offsets)
+      for (const dy of offsets)
+        pts.push(`${(lat + dx).toFixed(5)},${(lon + dy).toFixed(5)}`);
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 8000);
+    const res = await fetch(
+      `https://api.open-elevation.com/api/v1/lookup?locations=${pts.join("|")}`,
+      { signal: controller.signal },
+    );
+    clearTimeout(id);
+    if (!res.ok) throw new Error("Elevation failed");
+    const json = await res.json();
+    return (json?.results || []).map((r: any) => r.elevation as number);
+  } catch {
+    return [];
+  }
 }
 
 async function overpassCounts(
   lat: number,
   lon: number,
 ): Promise<{ cliff: number; quarry: number; cutting: number }> {
-  const q = `[
-    out:json][timeout:25];(
-      node["natural"="cliff"](around:2500,${lat},${lon});
-      way["natural"="cliff"](around:2500,${lat},${lon});
-      relation["natural"="cliff"](around:2500,${lat},${lon});
-      node["landuse"="quarry"](around:4000,${lat},${lon});
-      way["landuse"="quarry"](around:4000,${lat},${lon});
-      way["man_made"="cutting"](around:2500,${lat},${lon});
-    );out body;`;
-  const res = await fetch("https://overpass-api.de/api/interpreter", {
-    method: "POST",
-    body: q,
-    headers: { "Content-Type": "text/plain" },
-  });
-  if (!res.ok) throw new Error("Overpass failed");
-  const json = await res.json();
-  let cliff = 0,
-    quarry = 0,
-    cutting = 0;
-  for (const el of json?.elements || []) {
-    const t = el.tags || {};
-    if (t.natural === "cliff") cliff++;
-    if (t.landuse === "quarry") quarry++;
-    if (t.man_made === "cutting") cutting++;
+  try {
+    const q = `[
+      out:json][timeout:25];(
+        node["natural"="cliff"](around:2500,${lat},${lon});
+        way["natural"="cliff"](around:2500,${lat},${lon});
+        relation["natural"="cliff"](around:2500,${lat},${lon});
+        node["landuse"="quarry"](around:4000,${lat},${lon});
+        way["landuse"="quarry"](around:4000,${lat},${lon});
+        way["man_made"="cutting"](around:2500,${lat},${lon});
+      );out body;`;
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 9000);
+    const res = await fetch("https://overpass-api.de/api/interpreter", {
+      method: "POST",
+      body: q,
+      headers: { "Content-Type": "text/plain" },
+      signal: controller.signal,
+    });
+    clearTimeout(id);
+    if (!res.ok) throw new Error("Overpass failed");
+    const json = await res.json();
+    let cliff = 0,
+      quarry = 0,
+      cutting = 0;
+    for (const el of json?.elements || []) {
+      const t = el.tags || {};
+      if (t.natural === "cliff") cliff++;
+      if (t.landuse === "quarry") quarry++;
+      if (t.man_made === "cutting") cutting++;
+    }
+    return { cliff, quarry, cutting };
+  } catch {
+    return { cliff: 0, quarry: 0, cutting: 0 };
   }
-  return { cliff, quarry, cutting };
 }
 
 function slopeFromElevations(elev: number[]): {
@@ -147,13 +162,14 @@ export default function SitePredictor({
   const [weightQuarry, setWeightQuarry] = useState(0.15);
 
   const run = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      setError(null);
-      const g = await geocode(query);
+      const g = await geocode(query.trim());
       if (!g) {
         setError("Location not found");
-        setLoading(false);
+        setGeo(null);
+        setLast(null);
         return;
       }
       setGeo(g);
@@ -196,7 +212,7 @@ export default function SitePredictor({
   }, [query, onStats, weightSlope, weightCliff, weightQuarry]);
 
   const subtitle = useMemo(() => {
-    if (!geo) return "Enter a location in India (e.g., Chhattisgarh, India)";
+    if (!geo) return "Enter a location (e.g., Chhattisgarh, India)";
     return `${geo.name}${geo.admin1 ? ", " + geo.admin1 : ""}${geo.country ? ", " + geo.country : ""}`;
   }, [geo]);
 
@@ -207,12 +223,15 @@ export default function SitePredictor({
           <p className="text-sm font-medium">Mine Location Scenario</p>
           <p className="text-xs text-muted-foreground">{subtitle}</p>
         </div>
-        <Badge variant="secondary">India</Badge>
+        <Badge variant="secondary">Scenario</Badge>
       </div>
       <div className="flex gap-2">
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !loading) run();
+          }}
           placeholder="Chhattisgarh, India"
         />
         <Button onClick={run} disabled={loading}>
