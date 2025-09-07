@@ -40,7 +40,7 @@ export default function Header() {
             <Zap className="h-4 w-4 text-brand-foreground" />
           </div>
           <span className="font-extrabold tracking-tight text-lg">
-            MineSafe AI
+            SafeKKh
           </span>
         </div>
         <div className="ml-auto flex items-center gap-2">
