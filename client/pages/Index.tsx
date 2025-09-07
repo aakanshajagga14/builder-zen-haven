@@ -44,11 +44,10 @@ export default function Index() {
                 hilliness={hilliness}
                 mountainCount={mountainCount}
                 onStats={setStats}
-                statsOutputEnabled={!mlActive}
+                statsOutputEnabled={false}
               />
             </div>
-            <EnvPanel />
-            <MLPanel onStats={(s) => setStats(s)} onEnabledChange={setMlActive} />
+            <SitePredictor onStats={(s)=>setStats(s)} />
           </div>
           <div className="lg:col-span-4 space-y-4">
             <ControlsPanel
