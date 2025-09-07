@@ -10,13 +10,48 @@ export type SiteStats = { hazardIndex: number; velocityAvg: number; activeRocks:
 type Geo = { name: string; lat: number; lon: number; admin1?: string; country?: string };
 
 async function geocode(name: string): Promise<Geo | null> {
-  const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=en&format=json`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("Geocoding failed");
-  const json = await res.json();
-  const r = json?.results?.[0];
-  if (!r) return null;
-  return { name: r.name, lat: r.latitude, lon: r.longitude, admin1: r.admin1, country: r.country };
+  const q = /india/i.test(name) ? name : `${name}, India`;
+  // Try Open-Meteo geocoder first (broader search)
+  try {
+    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=10&language=en&format=json`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const json = await res.json();
+      const list: any[] = json?.results || [];
+      if (list.length) {
+        const preferred = list.find((x) => /india/i.test(x.country || "")) || list[0];
+        return {
+          name: preferred.name,
+          lat: preferred.latitude,
+          lon: preferred.longitude,
+          admin1: preferred.admin1,
+          country: preferred.country,
+        };
+      }
+    }
+  } catch {}
+
+  // Fallback: Nominatim (OpenStreetMap) - robust, CORS-enabled
+  try {
+    const url2 = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&addressdetails=1&q=${encodeURIComponent(q)}`;
+    const res2 = await fetch(url2, { headers: { "Accept": "application/json" } });
+    if (res2.ok) {
+      const arr = await res2.json();
+      const hit = arr?.[0];
+      if (hit) {
+        const addr = hit.address || {};
+        return {
+          name: hit.display_name?.split(",")[0] || name,
+          lat: parseFloat(hit.lat),
+          lon: parseFloat(hit.lon),
+          admin1: addr.state || addr.county,
+          country: addr.country,
+        };
+      }
+    }
+  } catch {}
+
+  return null;
 }
 
 async function elevationAround(lat: number, lon: number): Promise<number[]> {
