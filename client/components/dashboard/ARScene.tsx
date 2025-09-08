@@ -31,6 +31,9 @@ export interface ARSceneProps {
   hilliness: number; // 0-100
   mountainCount: number; // number of mountain peaks
   onStats: (stats: RealtimeStats) => void;
+  statsOutputEnabled?: boolean;
+  hazardExternal?: number; // 0-100 from predictor
+  mineAreaRadius?: number; // monitored zone radius centered at (0,0)
 }
 
 function terrainHeight(x: number, z: number) {
@@ -378,6 +381,8 @@ export default function ARScene({
   mountainCount,
   onStats,
   statsOutputEnabled = true,
+  hazardExternal = 0,
+  mineAreaRadius = 12,
 }: ARSceneProps) {
   const [rocks, setRocks] = useState<Rock[]>([]);
   const rocksRef = useRef<Rock[]>([]);
@@ -387,19 +392,27 @@ export default function ARScene({
     rocksRef.current = rocks;
   }, [rocks]);
 
-  // Spawn new rocks periodically
+  // Spawn new rocks with rate and location driven by external hazard and monitored zone
   useEffect(() => {
     if (!running) return;
+    const delay = THREE.MathUtils.clamp(2600 - hazardExternal * 18, 400, 3000);
     const interval = setInterval(() => {
+      // With low hazard, probabilistically skip spawns
+      const spawnChance = THREE.MathUtils.clamp(hazardExternal / 100, 0, 1);
+      if (Math.random() > spawnChance * 1.1) return;
+
       setRocks((prev) => {
         const id = prev.length ? prev[prev.length - 1].id + 1 : 1;
-        const x = (Math.random() - 0.5) * 40;
-        const z = (Math.random() - 0.5) * 40;
+        // Sample position within monitored disk centered at (0,0)
+        const r = Math.sqrt(Math.random()) * mineAreaRadius;
+        const ang = Math.random() * Math.PI * 2;
+        const x = Math.cos(ang) * r + (Math.random() - 0.5) * 1.2;
+        const z = Math.sin(ang) * r + (Math.random() - 0.5) * 1.2;
         const size = 0.25 + Math.random() * 0.9;
         const velocity = new THREE.Vector3(
-          (Math.random() - 0.5) * 2,
-          -2 - Math.random() * 2,
-          (Math.random() - 0.5) * 2,
+          (Math.random() - 0.5) * 0.8,
+          -1.8 - Math.random() * 1.6,
+          (Math.random() - 0.5) * 0.8,
         );
         const e = new THREE.Euler(
           Math.random() * Math.PI,
@@ -408,9 +421,9 @@ export default function ARScene({
         );
         const orientation = new THREE.Quaternion().setFromEuler(e);
         const spin = new THREE.Vector3(
-          (Math.random() - 0.5) * 3,
-          (Math.random() - 0.5) * 3,
-          (Math.random() - 0.5) * 3,
+          (Math.random() - 0.5) * 2.5,
+          (Math.random() - 0.5) * 2.5,
+          (Math.random() - 0.5) * 2.5,
         );
         const next = [
           ...prev,
@@ -427,11 +440,11 @@ export default function ARScene({
         rocksRef.current = next;
         return next;
       });
-    }, 900);
+    }, delay);
     return () => clearInterval(interval);
-  }, [running]);
+  }, [running, hazardExternal, mineAreaRadius]);
 
-  const heatIntensity = Math.min(1, rocks.filter((r) => r.active).length / 80);
+  const heatIntensity = Math.min(1, (hazardExternal || 0) / 100);
 
   // Throttle upstream updates to parent to avoid setState during render warnings
   useEffect(() => {
@@ -478,6 +491,16 @@ export default function ARScene({
           </group>
         )}
         {showStructures && <Structures />}
+        {/* Monitored mine area */}
+        <mesh rotation-x={-Math.PI / 2} position={[0, 0.03, 0]}
+          visible={mineAreaRadius > 0}>
+          <ringGeometry args={[Math.max(0.4, mineAreaRadius - 0.2), mineAreaRadius, 96]} />
+          <meshBasicMaterial color="#ef4444" transparent opacity={0.6} />
+        </mesh>
+        <mesh rotation-x={-Math.PI / 2} position={[0, 0.025, 0]} visible={mineAreaRadius > 0}>
+          <circleGeometry args={[mineAreaRadius * 0.98, 64]} />
+          <meshBasicMaterial color="#ef4444" transparent opacity={heatIntensity * 0.12} />
+        </mesh>
         <Rocks rocks={rocks} />
         {showHeatmap && <Heatmap intensity={heatIntensity} />}
         <OrbitControls
@@ -504,7 +527,7 @@ export default function ARScene({
             AR Overlay
           </p>
           <p className="font-semibold text-foreground">
-            Terrain • Rockfall Simulation
+            Monitored Zone • Hazard {Math.round(hazardExternal)}%
           </p>
         </div>
         <div className="rounded-md bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/40 border border-border px-3 py-2">
