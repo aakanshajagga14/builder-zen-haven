@@ -143,7 +143,8 @@ function slopeFromElevations(elev: number[]): {
   const spanMeters = 6000; // rough grid span
   const slope = (delta / spanMeters) * 100; // % grade
   const slopePct = Math.max(0, Math.min(100, slope * 4)); // amplify modest slopes, avoid saturation
-  const variance = elev.reduce((acc, v) => acc + Math.pow(v - elevAvg, 2), 0) / elev.length;
+  const variance =
+    elev.reduce((acc, v) => acc + Math.pow(v - elevAvg, 2), 0) / elev.length;
   const std = Math.sqrt(variance);
   const roughness = Math.max(0, Math.min(100, (std / 80) * 100)); // 80m std => 100
   return { slopePct, elevAvg, roughness };

@@ -492,14 +492,27 @@ export default function ARScene({
         )}
         {showStructures && <Structures />}
         {/* Monitored mine area */}
-        <mesh rotation-x={-Math.PI / 2} position={[0, 0.03, 0]}
-          visible={mineAreaRadius > 0}>
-          <ringGeometry args={[Math.max(0.4, mineAreaRadius - 0.2), mineAreaRadius, 96]} />
+        <mesh
+          rotation-x={-Math.PI / 2}
+          position={[0, 0.03, 0]}
+          visible={mineAreaRadius > 0}
+        >
+          <ringGeometry
+            args={[Math.max(0.4, mineAreaRadius - 0.2), mineAreaRadius, 96]}
+          />
           <meshBasicMaterial color="#ef4444" transparent opacity={0.6} />
         </mesh>
-        <mesh rotation-x={-Math.PI / 2} position={[0, 0.025, 0]} visible={mineAreaRadius > 0}>
+        <mesh
+          rotation-x={-Math.PI / 2}
+          position={[0, 0.025, 0]}
+          visible={mineAreaRadius > 0}
+        >
           <circleGeometry args={[mineAreaRadius * 0.98, 64]} />
-          <meshBasicMaterial color="#ef4444" transparent opacity={heatIntensity * 0.12} />
+          <meshBasicMaterial
+            color="#ef4444"
+            transparent
+            opacity={heatIntensity * 0.12}
+          />
         </mesh>
         <Rocks rocks={rocks} />
         {showHeatmap && <Heatmap intensity={heatIntensity} />}

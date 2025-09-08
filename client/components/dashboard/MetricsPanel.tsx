@@ -110,7 +110,10 @@ export default function MetricsPanel({
         <ChartContainer
           className="h-56"
           config={{
-            hazard: { label: "Probability", color: "var(--color-hazard, #22c55e)" },
+            hazard: {
+              label: "Probability",
+              color: "var(--color-hazard, #22c55e)",
+            },
             velocity: {
               label: "Velocity x10",
               color: "var(--color-velocity, #06b6d4)",
