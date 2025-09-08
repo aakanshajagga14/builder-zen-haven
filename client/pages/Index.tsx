@@ -45,6 +45,8 @@ export default function Index() {
                 mountainCount={mountainCount}
                 onStats={setStats}
                 statsOutputEnabled={false}
+                hazardExternal={stats.hazardIndex}
+                mineAreaRadius={12}
               />
             </div>
             <SitePredictor onStats={(s) => setStats(s)} />
