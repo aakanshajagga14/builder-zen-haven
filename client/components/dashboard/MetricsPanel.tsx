@@ -108,21 +108,18 @@ export default function MetricsPanel({
 
       <Card className="col-span-1 md:col-span-4 p-2">
         <ChartContainer
-          className="h-56"
+          className="h-64 w-full"
           config={{
-            hazard: {
-              label: "Probability",
-              color: "var(--color-hazard, #22c55e)",
-            },
+            hazard: { label: "Probability (%)", color: "var(--color-hazard, #22c55e)" },
             velocity: {
-              label: "Velocity x10",
+              label: "Velocity ×10 (a.u.)",
               color: "var(--color-velocity, #06b6d4)",
             },
           }}
         >
           <AreaChart
             data={chartData}
-            margin={{ left: 8, right: 8, top: 8, bottom: 8 }}
+            margin={{ left: 28, right: 10, top: 8, bottom: 18 }}
           >
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
             <XAxis
@@ -130,9 +127,16 @@ export default function MetricsPanel({
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              minTickGap={24}
+              minTickGap={28}
+              label={{ value: "Time", position: "insideRight", dy: 10 }}
             />
-            <YAxis hide domain={[0, 100]} />
+            <YAxis
+              domain={[0, 100]}
+              tickLine={false}
+              axisLine={false}
+              tickMargin={6}
+              label={{ value: "Probability / Velocity×10", angle: -90, position: "insideLeft" }}
+            />
             <Area
               type="monotone"
               dataKey="hazard"
@@ -140,6 +144,7 @@ export default function MetricsPanel({
               fill="hsl(var(--brand))"
               fillOpacity={0.2}
               strokeWidth={2}
+              name="Probability (%)"
             />
             <Area
               type="monotone"
@@ -148,6 +153,7 @@ export default function MetricsPanel({
               fill="#06b6d4"
               fillOpacity={0.12}
               strokeWidth={2}
+              name="Velocity ×10"
             />
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
           </AreaChart>
