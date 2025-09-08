@@ -15,11 +15,13 @@ export default function AlertsFeed({
   enabled = true,
   minIntervalSec = 20,
   activeRocks = 0,
+  site,
 }: {
   hazard: number;
   enabled?: boolean;
   minIntervalSec?: number;
   activeRocks?: number;
+  site?: string;
 }) {
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const lastId = useRef(0);
@@ -36,17 +38,20 @@ export default function AlertsFeed({
         lastAlertAt.current = now;
         const id = ++lastId.current;
         const level: AlertItem["level"] = hazard >= 85 ? "critical" : hazard >= 60 ? "warning" : "info";
-        const message =
+        const base =
           level === "critical"
             ? `Critical rockfall risk (${Math.round(hazard)}%).`
             : level === "warning"
               ? `Elevated rockfall risk (${Math.round(hazard)}%).`
               : `Minor activity (${Math.round(hazard)}%).`;
+        const where = site ? ` at ${site}` : "";
+        const withSite = `${base}${where}`.trim();
+        const fullMessage = activeRocks ? `${withSite} • Active rocks: ${activeRocks}.` : withSite;
         setAlerts((prev) => [
-          { id, level, message: activeRocks ? `${message} Active rocks: ${activeRocks}.` : message, time: now },
+          { id, level, message: fullMessage, time: now },
           ...prev,
         ].slice(0, 10));
-        toast(message, {
+        toast(fullMessage, {
           description: new Date(now).toLocaleTimeString(),
           className:
             level === "critical"
