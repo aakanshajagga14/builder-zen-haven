@@ -152,8 +152,10 @@ function slopeFromElevations(elev: number[]): {
 
 export default function SitePredictor({
   onStats,
+  onLocation,
 }: {
   onStats: (s: SiteStats) => void;
+  onLocation?: (name: string) => void;
 }) {
   const [query, setQuery] = useState("Chhattisgarh, India");
   const [geo, setGeo] = useState<Geo | null>(null);
@@ -183,6 +185,8 @@ export default function SitePredictor({
         return;
       }
       setGeo(g);
+      const pretty = `${g.name}${g.admin1 ? ", " + g.admin1 : ""}${g.country ? ", " + g.country : ""}`;
+      onLocation?.(pretty);
       const [elevs, osm] = await Promise.all([
         elevationAround(g.lat, g.lon),
         overpassCounts(g.lat, g.lon),
