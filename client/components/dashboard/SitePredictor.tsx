@@ -133,15 +133,20 @@ async function overpassCounts(
 function slopeFromElevations(elev: number[]): {
   slopePct: number;
   elevAvg: number;
+  roughness: number;
 } {
-  if (!elev.length) return { slopePct: 0, elevAvg: 0 };
+  if (!elev.length) return { slopePct: 0, elevAvg: 0, roughness: 0 };
   const elevAvg = elev.reduce((a, b) => a + b, 0) / elev.length;
   const min = Math.min(...elev),
     max = Math.max(...elev);
   const delta = max - min; // meters across ~6km span (approx)
   const spanMeters = 6000; // rough grid span
   const slope = (delta / spanMeters) * 100; // % grade
-  return { slopePct: Math.max(0, Math.min(100, slope * 250)), elevAvg };
+  const slopePct = Math.max(0, Math.min(100, slope * 4)); // amplify modest slopes, avoid saturation
+  const variance = elev.reduce((acc, v) => acc + Math.pow(v - elevAvg, 2), 0) / elev.length;
+  const std = Math.sqrt(variance);
+  const roughness = Math.max(0, Math.min(100, (std / 80) * 100)); // 80m std => 100
+  return { slopePct, elevAvg, roughness };
 }
 
 export default function SitePredictor({
@@ -156,11 +161,12 @@ export default function SitePredictor({
   const [last, setLast] = useState<{
     slopePct: number;
     elevAvg: number;
+    roughness: number;
     cliff: number;
     quarry: number;
     cutting: number;
   } | null>(null);
-  const [weightSlope, setWeightSlope] = useState(0.55);
+  const [weightSlope, setWeightSlope] = useState(0.45);
   const [weightCliff, setWeightCliff] = useState(0.3);
   const [weightQuarry, setWeightQuarry] = useState(0.15);
 
@@ -180,19 +186,22 @@ export default function SitePredictor({
         elevationAround(g.lat, g.lon),
         overpassCounts(g.lat, g.lon),
       ]);
-      const { slopePct, elevAvg } = slopeFromElevations(elevs);
+      const { slopePct, elevAvg, roughness } = slopeFromElevations(elevs);
       const cliff = osm.cliff;
       const quarry = osm.quarry;
       const cutting = osm.cutting;
       const slopeScore = Math.min(100, slopePct);
       const geomFactor = Math.min(100, cliff * 6 + cutting * 4);
-      const miningFactor = Math.min(80, quarry * 10);
+      const miningFactor = Math.min(100, quarry * 12);
+      const roughnessFactor = Math.min(100, roughness);
       const hazard = Math.min(
         100,
         Math.round(
-          weightSlope * slopeScore +
+          5 +
+            weightSlope * slopeScore +
             weightCliff * geomFactor +
-            weightQuarry * miningFactor,
+            weightQuarry * miningFactor +
+            0.1 * roughnessFactor,
         ),
       );
       const activeRocks = Math.round(
@@ -201,11 +210,12 @@ export default function SitePredictor({
       const velocityAvg = Math.round((slopeScore / 100) * 6 * 10) / 10;
       const confidence = Math.min(
         100,
-        40 +
-          (elevs.length ? 30 : 0) +
-          Math.min(30, (cliff + quarry + cutting) * 3),
+        35 +
+          (elevs.length ? 25 : 0) +
+          Math.min(40, (cliff + quarry + cutting) * 4) +
+          Math.min(10, Math.round(roughnessFactor / 10)),
       );
-      setLast({ slopePct, elevAvg, cliff, quarry, cutting });
+      setLast({ slopePct, elevAvg, roughness, cliff, quarry, cutting });
       onStats({ hazardIndex: hazard, velocityAvg, activeRocks, confidence });
     } catch (e: any) {
       setError(e?.message || "Failed to predict");
