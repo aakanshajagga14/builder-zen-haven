@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
