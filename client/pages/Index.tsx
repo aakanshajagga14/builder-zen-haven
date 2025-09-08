@@ -25,6 +25,7 @@ export default function Index() {
     activeRocks: 0,
     confidence: 0,
   });
+  const [siteName, setSiteName] = useState<string>("");
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background">
@@ -49,7 +50,7 @@ export default function Index() {
                 mineAreaRadius={12}
               />
             </div>
-            <SitePredictor onStats={(s) => setStats(s)} />
+            <SitePredictor onStats={(s) => setStats(s)} onLocation={setSiteName} />
           </div>
           <div className="lg:col-span-4 space-y-4">
             <ControlsPanel
@@ -81,6 +82,7 @@ export default function Index() {
               enabled={alertsEnabled}
               minIntervalSec={alertsMinInterval}
               activeRocks={stats.activeRocks}
+              site={siteName}
             />
           </div>
         </section>
