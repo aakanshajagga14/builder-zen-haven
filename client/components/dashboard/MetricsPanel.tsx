@@ -51,7 +51,7 @@ export default function MetricsPanel({
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <Card className="p-4">
-        <p className="text-xs text-muted-foreground">Hazard Index</p>
+        <p className="text-xs text-muted-foreground">Rockfall Probability</p>
         <div className="mt-2 flex items-end gap-2">
           <span
             className={cn(
@@ -110,7 +110,7 @@ export default function MetricsPanel({
         <ChartContainer
           className="h-56"
           config={{
-            hazard: { label: "Hazard", color: "var(--color-hazard, #22c55e)" },
+            hazard: { label: "Probability", color: "var(--color-hazard, #22c55e)" },
             velocity: {
               label: "Velocity x10",
               color: "var(--color-velocity, #06b6d4)",
