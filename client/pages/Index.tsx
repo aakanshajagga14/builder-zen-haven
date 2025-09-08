@@ -80,6 +80,7 @@ export default function Index() {
               hazard={stats.hazardIndex}
               enabled={alertsEnabled}
               minIntervalSec={alertsMinInterval}
+              activeRocks={stats.activeRocks}
             />
           </div>
         </section>

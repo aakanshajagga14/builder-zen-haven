@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -14,45 +15,49 @@ export default function AlertsFeed({
   hazard,
   enabled = true,
   minIntervalSec = 20,
+  activeRocks = 0,
 }: {
   hazard: number;
   enabled?: boolean;
   minIntervalSec?: number;
+  activeRocks?: number;
 }) {
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const lastId = useRef(0);
-  const lastBucket = useRef<string>("");
   const lastAlertAt = useRef<number>(0);
 
   useEffect(() => {
     if (!enabled) return;
-    const bucket = hazard >= 80 ? "critical" : hazard >= 60 ? "warning" : "";
-    const now = Date.now();
-    const cooldown = (minIntervalSec ?? 20) * 1000;
-    if (
-      bucket &&
-      bucket !== lastBucket.current &&
-      now - lastAlertAt.current >= cooldown
-    ) {
-      lastBucket.current = bucket;
-      lastAlertAt.current = now;
-      const id = ++lastId.current;
-      const time = now;
-      const level = bucket as AlertItem["level"];
-      const message =
-        level === "critical"
-          ? `Critical hazard spike detected (${Math.round(hazard)})`
-          : `Elevated hazard level (${Math.round(hazard)})`;
-      setAlerts((prev) => [{ id, level, message, time }, ...prev].slice(0, 10));
-      toast(message, {
-        description: new Date(time).toLocaleTimeString(),
-        className:
+    const tick = setInterval(() => {
+      const now = Date.now();
+      const cooldown = (minIntervalSec ?? 20) * 1000;
+      if (now - lastAlertAt.current < cooldown) return;
+      const p = Math.min(0.95, Math.pow(hazard / 100, 2));
+      if (Math.random() < p) {
+        lastAlertAt.current = now;
+        const id = ++lastId.current;
+        const level: AlertItem["level"] = hazard >= 85 ? "critical" : hazard >= 60 ? "warning" : "info";
+        const message =
           level === "critical"
-            ? "bg-destructive text-destructive-foreground"
-            : "",
-      });
-    }
-  }, [hazard, enabled, minIntervalSec]);
+            ? `Critical rockfall risk (${Math.round(hazard)}%).`
+            : level === "warning"
+              ? `Elevated rockfall risk (${Math.round(hazard)}%).`
+              : `Minor activity (${Math.round(hazard)}%).`;
+        setAlerts((prev) => [
+          { id, level, message: activeRocks ? `${message} Active rocks: ${activeRocks}.` : message, time: now },
+          ...prev,
+        ].slice(0, 10));
+        toast(message, {
+          description: new Date(now).toLocaleTimeString(),
+          className:
+            level === "critical"
+              ? "bg-destructive text-destructive-foreground"
+              : "",
+        });
+      }
+    }, 2000);
+    return () => clearInterval(tick);
+  }, [hazard, activeRocks, enabled, minIntervalSec]);
 
   return (
     <Card className="p-4 space-y-3">
