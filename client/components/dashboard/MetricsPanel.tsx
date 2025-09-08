@@ -112,7 +112,10 @@ export default function MetricsPanel({
         <ChartContainer
           className="h-64 w-full"
           config={{
-            hazard: { label: "Probability (%)", color: "var(--color-hazard, #22c55e)" },
+            hazard: {
+              label: "Probability (%)",
+              color: "var(--color-hazard, #22c55e)",
+            },
             velocity: {
               label: "Velocity ×10 (a.u.)",
               color: "var(--color-velocity, #06b6d4)",
@@ -137,7 +140,11 @@ export default function MetricsPanel({
               tickLine={false}
               axisLine={false}
               tickMargin={6}
-              label={{ value: "Probability / Velocity×10", angle: -90, position: "insideLeft" }}
+              label={{
+                value: "Probability / Velocity×10",
+                angle: -90,
+                position: "insideLeft",
+              }}
             />
             <Area
               type="monotone"

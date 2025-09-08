@@ -50,7 +50,10 @@ export default function Index() {
                 mineAreaRadius={12}
               />
             </div>
-            <SitePredictor onStats={(s) => setStats(s)} onLocation={setSiteName} />
+            <SitePredictor
+              onStats={(s) => setStats(s)}
+              onLocation={setSiteName}
+            />
           </div>
           <div className="lg:col-span-4 space-y-4">
             <ControlsPanel
