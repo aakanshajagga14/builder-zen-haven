@@ -158,6 +158,7 @@ export default function MetricsPanel({
               name="Velocity ×10"
             />
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+            <ChartLegend verticalAlign="top" content={<ChartLegendContent />} />
           </AreaChart>
         </ChartContainer>
       </Card>
