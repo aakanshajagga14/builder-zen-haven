@@ -229,14 +229,42 @@ export default function SitePredictor({
       const geomFactor = Math.min(100, cliff * 6 + cutting * 4);
       const miningFactor = Math.min(100, quarry * 12);
       const roughnessFactor = Math.min(100, roughness);
-      const hazard = Math.min(
+      const rain24Score = Math.min(100, rain.rain24 * 2.0);
+      const rain72Score = Math.min(100, rain.rain72 * 1.0);
+
+      const rockfallHazard = Math.min(
         100,
         Math.round(
           5 +
             weightSlope * slopeScore +
             weightCliff * geomFactor +
             weightQuarry * miningFactor +
-            0.1 * roughnessFactor,
+            0.1 * roughnessFactor +
+            0.25 * rain24Score +
+            0.15 * rain72Score,
+        ),
+      );
+
+      const floodHazard = Math.max(
+        0,
+        Math.min(
+          100,
+          Math.round(0.6 * rain72Score + 0.2 * rain24Score + Math.max(0, 40 - slopeScore) * 0.5),
+        ),
+      );
+
+      const landslideHazard = Math.min(
+        100,
+        Math.round(0.6 * slopeScore + 0.4 * rain24Score + Math.min(40, (cliff + cutting) * 3)),
+      );
+
+      const fusedHazard = Math.min(
+        100,
+        Math.round(
+          fuseWeights.rockfall * rockfallHazard +
+            fuseWeights.flood * floodHazard +
+            fuseWeights.landslide * landslideHazard +
+            fuseWeights.gas * gasHazard,
         ),
       );
       const activeRocks = Math.round(
