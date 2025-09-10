@@ -4,7 +4,6 @@ import ARScene, { RealtimeStats } from "@/components/dashboard/ARScene";
 import MetricsPanel from "@/components/dashboard/MetricsPanel";
 import AlertsFeed from "@/components/dashboard/AlertsFeed";
 import SitePredictor from "@/components/dashboard/SitePredictor";
-import KeyFeatures from "@/components/marketing/KeyFeatures";
 import { useSettings } from "@/context/SettingsContext";
 
 export default function Index() {
@@ -53,9 +52,6 @@ export default function Index() {
             activeRocks={stats.activeRocks}
             site={siteName}
           />
-        </section>
-        <section className="pt-4">
-          <KeyFeatures />
         </section>
       </main>
     </div>
