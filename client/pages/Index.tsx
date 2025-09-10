@@ -97,6 +97,9 @@ export default function Index() {
             confidence={stats.confidence}
           />
         </section>
+        <section className="pt-4">
+          <KeyFeatures />
+        </section>
       </main>
     </div>
   );
