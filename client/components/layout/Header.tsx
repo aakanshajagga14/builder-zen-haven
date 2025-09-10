@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Sun, Moon, Zap } from "lucide-react";
+import { Sun, Moon, Zap, Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import ControlsPanel from "@/components/dashboard/ControlsPanel";
+import { useSettings } from "@/context/SettingsContext";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 function useTheme() {
   const [dark, setDark] = useState<boolean>(() => {
