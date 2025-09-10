@@ -57,7 +57,9 @@ export default function Header() {
             <SheetContent side="right" className="w-full sm:max-w-md">
               <div className="mb-2">
                 <p className="text-sm font-semibold">Dashboard Settings</p>
-                <p className="text-xs text-muted-foreground">Tweak AR and visualization</p>
+                <p className="text-xs text-muted-foreground">
+                  Tweak AR and visualization
+                </p>
               </div>
               <ControlsPanel
                 running={state.running}

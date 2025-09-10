@@ -59,7 +59,9 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     [state],
   );
 
-  return <SettingsContext.Provider value={api}>{children}</SettingsContext.Provider>;
+  return (
+    <SettingsContext.Provider value={api}>{children}</SettingsContext.Provider>
+  );
 }
 
 export function useSettings() {

@@ -38,7 +38,10 @@ export default function Index() {
               mineAreaRadius={12}
             />
           </div>
-          <SitePredictor onStats={(s) => setStats(s)} onLocation={setSiteName} />
+          <SitePredictor
+            onStats={(s) => setStats(s)}
+            onLocation={setSiteName}
+          />
           <MetricsPanel
             hazard={stats.hazardIndex}
             velocityAvg={stats.velocityAvg}

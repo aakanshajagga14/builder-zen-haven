@@ -150,7 +150,10 @@ function slopeFromElevations(elev: number[]): {
   return { slopePct, elevAvg, roughness };
 }
 
-async function rainfall(lat: number, lon: number): Promise<{ rain24: number; rain72: number }> {
+async function rainfall(
+  lat: number,
+  lon: number,
+): Promise<{ rain24: number; rain72: number }> {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=precipitation&past_days=3&forecast_days=1&timezone=auto`;
   const res = await fetch(url);
   if (!res.ok) return { rain24: 0, rain72: 0 };
@@ -159,7 +162,8 @@ async function rainfall(lat: number, lon: number): Promise<{ rain24: number; rai
   const prec: number[] = json?.hourly?.precipitation || [];
   if (!hours.length || !prec.length) return { rain24: 0, rain72: 0 };
   const now = Date.now();
-  let rain24 = 0, rain72 = 0;
+  let rain24 = 0,
+    rain72 = 0;
   for (let i = 0; i < hours.length; i++) {
     const t = new Date(hours[i]).getTime();
     const deltaH = (now - t) / (1000 * 60 * 60);
@@ -249,13 +253,21 @@ export default function SitePredictor({
         0,
         Math.min(
           100,
-          Math.round(0.6 * rain72Score + 0.2 * rain24Score + Math.max(0, 40 - slopeScore) * 0.5),
+          Math.round(
+            0.6 * rain72Score +
+              0.2 * rain24Score +
+              Math.max(0, 40 - slopeScore) * 0.5,
+          ),
         ),
       );
 
       const landslideHazard = Math.min(
         100,
-        Math.round(0.6 * slopeScore + 0.4 * rain24Score + Math.min(40, (cliff + cutting) * 3)),
+        Math.round(
+          0.6 * slopeScore +
+            0.4 * rain24Score +
+            Math.min(40, (cliff + cutting) * 3),
+        ),
       );
 
       const fusedHazard = Math.min(
@@ -294,7 +306,12 @@ export default function SitePredictor({
         fusedHazard,
         siteName: pretty,
       });
-      onStats({ hazardIndex: rockfallHazard, velocityAvg, activeRocks, confidence });
+      onStats({
+        hazardIndex: rockfallHazard,
+        velocityAvg,
+        activeRocks,
+        confidence,
+      });
     } catch (e: any) {
       setError(e?.message || "Failed to predict");
     } finally {
@@ -397,29 +414,58 @@ export default function SitePredictor({
           />
         </div>
         <div>
-          <p className="text-xs text-muted-foreground mb-1">Gas Risk Index ({gasHazard})</p>
-          <Slider value={[gasHazard]} min={0} max={100} step={1} onValueChange={(v) => setGasHazard(v[0] ?? 0)} />
+          <p className="text-xs text-muted-foreground mb-1">
+            Gas Risk Index ({gasHazard})
+          </p>
+          <Slider
+            value={[gasHazard]}
+            min={0}
+            max={100}
+            step={1}
+            onValueChange={(v) => setGasHazard(v[0] ?? 0)}
+          />
         </div>
       </div>
 
       {last && (
         <div className="pt-2 border-t">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">AI Explainability Panel</p>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+            AI Explainability Panel
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="rounded-md border p-3 bg-muted/30">
-              <p className="text-xs font-semibold mb-1">Rainfall–Slope Correlation</p>
-              <p className="text-xs text-muted-foreground">Rain 24h: {last.rain24?.toFixed(1)} mm • 72h: {last.rain72?.toFixed(1)} mm</p>
-              <p className="text-xs">Steep slope {Math.round(last.slopePct)}% + rain → Rockfall ≈ {last.rockfallHazard}%</p>
+              <p className="text-xs font-semibold mb-1">
+                Rainfall–Slope Correlation
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Rain 24h: {last.rain24?.toFixed(1)} mm • 72h:{" "}
+                {last.rain72?.toFixed(1)} mm
+              </p>
+              <p className="text-xs">
+                Steep slope {Math.round(last.slopePct)}% + rain → Rockfall ≈{" "}
+                {last.rockfallHazard}%
+              </p>
             </div>
             <div className="rounded-md border p-3 bg-muted/30">
               <p className="text-xs font-semibold mb-1">AI Explainability</p>
-              <p className="text-xs">Features: cliffs {last.cliff}, cuttings {last.cutting}, quarries {last.quarry}, roughness {Math.round(last.roughness)}%</p>
-              <p className="text-xs">Reasoning: more cliffs/cuttings + recent rain ↑ ⇒ risk ↑</p>
+              <p className="text-xs">
+                Features: cliffs {last.cliff}, cuttings {last.cutting}, quarries{" "}
+                {last.quarry}, roughness {Math.round(last.roughness)}%
+              </p>
+              <p className="text-xs">
+                Reasoning: more cliffs/cuttings + recent rain ↑ ⇒ risk ↑
+              </p>
             </div>
             <div className="rounded-md border p-3 bg-muted/30">
               <p className="text-xs font-semibold mb-1">Multi‑Hazard Fusion</p>
-              <p className="text-xs">Rockfall {last.rockfallHazard}% • Flood {last.floodHazard}% • Landslide {last.landslideHazard}% • Gas {last.gasHazard}%</p>
-              <p className="text-xs font-medium">Fused Site Risk: {last.fusedHazard}% {last.siteName ? `@ ${last.siteName}` : ""}</p>
+              <p className="text-xs">
+                Rockfall {last.rockfallHazard}% • Flood {last.floodHazard}% •
+                Landslide {last.landslideHazard}% • Gas {last.gasHazard}%
+              </p>
+              <p className="text-xs font-medium">
+                Fused Site Risk: {last.fusedHazard}%{" "}
+                {last.siteName ? `@ ${last.siteName}` : ""}
+              </p>
             </div>
           </div>
         </div>
