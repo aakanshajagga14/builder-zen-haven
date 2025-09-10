@@ -47,6 +47,43 @@ export default function Header() {
           </span>
         </div>
         <div className="ml-auto flex items-center gap-2">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" aria-label="Open settings">
+                <Menu className="h-4 w-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-full sm:max-w-md">
+              <div className="mb-2">
+                <p className="text-sm font-semibold">Dashboard Settings</p>
+                <p className="text-xs text-muted-foreground">Tweak AR and visualization</p>
+              </div>
+              <ControlsPanel
+                running={state.running}
+                setRunning={(v) => set("running", v)}
+                showWireframe={state.showWireframe}
+                setShowWireframe={(v) => set("showWireframe", v)}
+                showHeatmap={state.showHeatmap}
+                setShowHeatmap={(v) => set("showHeatmap", v)}
+                showPit={state.showPit}
+                setShowPit={(v) => set("showPit", v)}
+                showTunnels={state.showTunnels}
+                setShowTunnels={(v) => set("showTunnels", v)}
+                showStructures={state.showStructures}
+                setShowStructures={(v) => set("showStructures", v)}
+                showHills={state.showHills}
+                setShowHills={(v) => set("showHills", v)}
+                hilliness={state.hilliness}
+                setHilliness={(v) => set("hilliness", v)}
+                mountainCount={state.mountainCount}
+                setMountainCount={(v) => set("mountainCount", v)}
+                alertsEnabled={state.alertsEnabled}
+                setAlertsEnabled={(v) => set("alertsEnabled", v)}
+                alertsMinInterval={state.alertsMinInterval}
+                setAlertsMinInterval={(v) => set("alertsMinInterval", v)}
+              />
+            </SheetContent>
+          </Sheet>
           <Button
             variant="ghost"
             size="icon"
