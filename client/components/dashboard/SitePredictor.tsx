@@ -150,6 +150,25 @@ function slopeFromElevations(elev: number[]): {
   return { slopePct, elevAvg, roughness };
 }
 
+async function rainfall(lat: number, lon: number): Promise<{ rain24: number; rain72: number }> {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=precipitation&past_days=3&forecast_days=1&timezone=auto`;
+  const res = await fetch(url);
+  if (!res.ok) return { rain24: 0, rain72: 0 };
+  const json = await res.json();
+  const hours: string[] = json?.hourly?.time || [];
+  const prec: number[] = json?.hourly?.precipitation || [];
+  if (!hours.length || !prec.length) return { rain24: 0, rain72: 0 };
+  const now = Date.now();
+  let rain24 = 0, rain72 = 0;
+  for (let i = 0; i < hours.length; i++) {
+    const t = new Date(hours[i]).getTime();
+    const deltaH = (now - t) / (1000 * 60 * 60);
+    if (deltaH >= 0 && deltaH <= 24) rain24 += prec[i] || 0;
+    if (deltaH >= 0 && deltaH <= 72) rain72 += prec[i] || 0;
+  }
+  return { rain24, rain72 };
+}
+
 export default function SitePredictor({
   onStats,
   onLocation,
