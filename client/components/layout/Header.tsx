@@ -30,6 +30,7 @@ function useTheme() {
 
 export default function Header() {
   const { dark, setDark } = useTheme();
+  const { state, set } = useSettings();
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-14 flex items-center gap-3">
