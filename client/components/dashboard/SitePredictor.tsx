@@ -199,6 +199,8 @@ export default function SitePredictor({
   const [weightSlope, setWeightSlope] = useState(0.45);
   const [weightCliff, setWeightCliff] = useState(0.3);
   const [weightQuarry, setWeightQuarry] = useState(0.15);
+  const [gasHazard, setGasHazard] = useState(0);
+  const fuseWeights = { rockfall: 0.5, flood: 0.2, landslide: 0.2, gas: 0.1 };
 
   const run = useCallback(async () => {
     setLoading(true);
