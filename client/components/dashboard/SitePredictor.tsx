@@ -396,7 +396,34 @@ export default function SitePredictor({
             onValueChange={(v) => setWeightQuarry(v[0] ?? 0.15)}
           />
         </div>
+        <div>
+          <p className="text-xs text-muted-foreground mb-1">Gas Risk Index ({gasHazard})</p>
+          <Slider value={[gasHazard]} min={0} max={100} step={1} onValueChange={(v) => setGasHazard(v[0] ?? 0)} />
+        </div>
       </div>
+
+      {last && (
+        <div className="pt-2 border-t">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">AI Explainability Panel</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="rounded-md border p-3 bg-muted/30">
+              <p className="text-xs font-semibold mb-1">Rainfall–Slope Correlation</p>
+              <p className="text-xs text-muted-foreground">Rain 24h: {last.rain24?.toFixed(1)} mm • 72h: {last.rain72?.toFixed(1)} mm</p>
+              <p className="text-xs">Steep slope {Math.round(last.slopePct)}% + rain → Rockfall ≈ {last.rockfallHazard}%</p>
+            </div>
+            <div className="rounded-md border p-3 bg-muted/30">
+              <p className="text-xs font-semibold mb-1">AI Explainability</p>
+              <p className="text-xs">Features: cliffs {last.cliff}, cuttings {last.cutting}, quarries {last.quarry}, roughness {Math.round(last.roughness)}%</p>
+              <p className="text-xs">Reasoning: more cliffs/cuttings + recent rain ↑ ⇒ risk ↑</p>
+            </div>
+            <div className="rounded-md border p-3 bg-muted/30">
+              <p className="text-xs font-semibold mb-1">Multi‑Hazard Fusion</p>
+              <p className="text-xs">Rockfall {last.rockfallHazard}% • Flood {last.floodHazard}% • Landslide {last.landslideHazard}% • Gas {last.gasHazard}%</p>
+              <p className="text-xs font-medium">Fused Site Risk: {last.fusedHazard}% {last.siteName ? `@ ${last.siteName}` : ""}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }
