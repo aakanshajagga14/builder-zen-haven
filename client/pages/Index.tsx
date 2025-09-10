@@ -2,24 +2,15 @@ import { useState } from "react";
 import Header from "@/components/layout/Header";
 import ARScene, { RealtimeStats } from "@/components/dashboard/ARScene";
 import MetricsPanel from "@/components/dashboard/MetricsPanel";
-import ControlsPanel from "@/components/dashboard/ControlsPanel";
 import AlertsFeed from "@/components/dashboard/AlertsFeed";
 import SitePredictor from "@/components/dashboard/SitePredictor";
 import KeyFeatures from "@/components/marketing/KeyFeatures";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { useSettings } from "@/context/SettingsContext";
 
 export default function Index() {
-  const [running, setRunning] = useState(true);
-  const [showWireframe, setShowWireframe] = useState(false);
-  const [showHeatmap, setShowHeatmap] = useState(true);
-  const [showPit, setShowPit] = useState(true);
-  const [showTunnels, setShowTunnels] = useState(true);
-  const [showStructures, setShowStructures] = useState(true);
-  const [showHills, setShowHills] = useState(true);
-  const [hilliness, setHilliness] = useState(85);
-  const [mountainCount, setMountainCount] = useState(14);
-  const [alertsEnabled, setAlertsEnabled] = useState(true);
-  const [alertsMinInterval, setAlertsMinInterval] = useState(30);
-  const [mlActive, setMlActive] = useState(false);
+  const { state, set } = useSettings();
   const [stats, setStats] = useState<RealtimeStats>({
     hazardIndex: 0,
     velocityAvg: 0,
@@ -36,67 +27,42 @@ export default function Index() {
           <div className="lg:col-span-8 space-y-4">
             <div className="h-[48vh] lg:h-[60vh]">
               <ARScene
-                running={running}
-                showWireframe={showWireframe}
-                showHeatmap={showHeatmap}
-                showPit={showPit}
-                showTunnels={showTunnels}
-                showStructures={showStructures}
-                showHills={showHills}
-                hilliness={hilliness}
-                mountainCount={mountainCount}
+                running={state.running}
+                showWireframe={state.showWireframe}
+                showHeatmap={state.showHeatmap}
+                showPit={state.showPit}
+                showTunnels={state.showTunnels}
+                showStructures={state.showStructures}
+                showHills={state.showHills}
+                hilliness={state.hilliness}
+                mountainCount={state.mountainCount}
                 onStats={setStats}
                 statsOutputEnabled={false}
                 hazardExternal={stats.hazardIndex}
                 mineAreaRadius={12}
               />
             </div>
-            <SitePredictor
-              onStats={(s) => setStats(s)}
-              onLocation={setSiteName}
-            />
           </div>
           <div className="lg:col-span-4 space-y-4">
-            <ControlsPanel
-              running={running}
-              setRunning={setRunning}
-              showWireframe={showWireframe}
-              setShowWireframe={setShowWireframe}
-              showHeatmap={showHeatmap}
-              setShowHeatmap={setShowHeatmap}
-              showPit={showPit}
-              setShowPit={setShowPit}
-              showTunnels={showTunnels}
-              setShowTunnels={setShowTunnels}
-              showStructures={showStructures}
-              setShowStructures={setShowStructures}
-              showHills={showHills}
-              setShowHills={setShowHills}
-              hilliness={hilliness}
-              setHilliness={setHilliness}
-              mountainCount={mountainCount}
-              setMountainCount={setMountainCount}
-              alertsEnabled={alertsEnabled}
-              setAlertsEnabled={setAlertsEnabled}
-              alertsMinInterval={alertsMinInterval}
-              setAlertsMinInterval={setAlertsMinInterval}
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold">Right Panel</h2>
+              <Button asChild size="sm"><Link to="/settings">Open Settings</Link></Button>
+            </div>
+            <SitePredictor onStats={(s) => setStats(s)} onLocation={setSiteName} />
+            <MetricsPanel
+              hazard={stats.hazardIndex}
+              velocityAvg={stats.velocityAvg}
+              activeRocks={stats.activeRocks}
+              confidence={stats.confidence}
             />
             <AlertsFeed
               hazard={stats.hazardIndex}
-              enabled={alertsEnabled}
-              minIntervalSec={alertsMinInterval}
+              enabled={state.alertsEnabled}
+              minIntervalSec={state.alertsMinInterval}
               activeRocks={stats.activeRocks}
               site={siteName}
             />
           </div>
-        </section>
-        <section>
-          <MetricsPanel
-            hazard={stats.hazardIndex}
-            velocityAvg={stats.velocityAvg}
-            activeRocks={stats.activeRocks}
-            confidence={stats.confidence}
-          />
         </section>
         <section className="pt-4">
           <KeyFeatures />
