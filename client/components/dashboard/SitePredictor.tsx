@@ -216,9 +216,10 @@ export default function SitePredictor({
       setGeo(g);
       const pretty = `${g.name}${g.admin1 ? ", " + g.admin1 : ""}${g.country ? ", " + g.country : ""}`;
       onLocation?.(pretty);
-      const [elevs, osm] = await Promise.all([
+      const [elevs, osm, rain] = await Promise.all([
         elevationAround(g.lat, g.lon),
         overpassCounts(g.lat, g.lon),
+        rainfall(g.lat, g.lon),
       ]);
       const { slopePct, elevAvg, roughness } = slopeFromElevations(elevs);
       const cliff = osm.cliff;
