@@ -278,8 +278,23 @@ export default function SitePredictor({
           Math.min(40, (cliff + quarry + cutting) * 4) +
           Math.min(10, Math.round(roughnessFactor / 10)),
       );
-      setLast({ slopePct, elevAvg, roughness, cliff, quarry, cutting });
-      onStats({ hazardIndex: hazard, velocityAvg, activeRocks, confidence });
+      setLast({
+        slopePct,
+        elevAvg,
+        roughness,
+        cliff,
+        quarry,
+        cutting,
+        rain24: rain.rain24,
+        rain72: rain.rain72,
+        rockfallHazard,
+        floodHazard,
+        landslideHazard,
+        gasHazard,
+        fusedHazard,
+        siteName: pretty,
+      });
+      onStats({ hazardIndex: rockfallHazard, velocityAvg, activeRocks, confidence });
     } catch (e: any) {
       setError(e?.message || "Failed to predict");
     } finally {
