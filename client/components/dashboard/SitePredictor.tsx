@@ -187,6 +187,14 @@ export default function SitePredictor({
     cliff: number;
     quarry: number;
     cutting: number;
+    rain24?: number;
+    rain72?: number;
+    rockfallHazard?: number;
+    floodHazard?: number;
+    landslideHazard?: number;
+    gasHazard?: number;
+    fusedHazard?: number;
+    siteName?: string;
   } | null>(null);
   const [weightSlope, setWeightSlope] = useState(0.45);
   const [weightCliff, setWeightCliff] = useState(0.3);
