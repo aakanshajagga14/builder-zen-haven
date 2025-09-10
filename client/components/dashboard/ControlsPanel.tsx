@@ -1,5 +1,4 @@
 import { Card } from "@/components/ui/card";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
