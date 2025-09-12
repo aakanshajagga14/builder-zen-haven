@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 
 const sensors = [
@@ -56,15 +55,8 @@ export default function SensorsPage() {
         {sensors.map((s) => (
           <Card key={s.key} className="p-4 flex flex-col justify-between">
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-start">
                 <p className="text-base font-medium">{s.name}</p>
-                <div className="flex gap-1">
-                  {s.tags.map((t) => (
-                    <Badge key={t} variant="secondary">
-                      {t}
-                    </Badge>
-                  ))}
-                </div>
               </div>
               <p className="text-sm text-muted-foreground">{s.desc}</p>
             </div>
