@@ -22,15 +22,15 @@ export default function KeyFeatures() {
 
   return (
     <section aria-labelledby="kf-title" className="w-full">
-      <Card className="relative overflow-hidden border-foreground/10 bg-black text-foreground">
+      <Card className="relative overflow-hidden border border-border/70 bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/50">
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
-          <div className="absolute -top-32 -right-32 h-72 w-72 rounded-full bg-yellow-500/10 blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-neutral-700/20 blur-3xl" />
+          <div className="absolute -top-32 -right-20 h-72 w-72 rounded-full bg-gradient-to-tr from-brand/25 to-cyan-400/20 blur-3xl" />
+          <div className="absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-muted/40 dark:bg-neutral-700/30 blur-3xl" />
         </div>
         <div className="relative px-6 py-8 md:px-10 md:py-10">
           <h2
             id="kf-title"
-            className="text-center text-2xl md:text-3xl font-extrabold tracking-tight"
+            className="text-center text-2xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-muted-foreground"
           >
             Key Features of SafeKhadaan Dashboard
           </h2>
@@ -38,17 +38,17 @@ export default function KeyFeatures() {
             {items.map((it, i) => (
               <div
                 key={i}
-                className="rounded-lg border border-neutral-800 bg-neutral-950 p-5"
+                className="rounded-xl border border-border/60 bg-gradient-to-b from-background/70 to-muted/40 dark:from-neutral-900/70 dark:to-neutral-900/40 backdrop-blur p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:shadow-lg transition"
               >
                 <div className="flex items-start gap-4">
-                  <div className="shrink-0 h-14 w-14 rounded-xl bg-neutral-900 border border-yellow-500/40 flex items-center justify-center">
-                    <it.icon className="h-7 w-7 text-yellow-400" />
+                  <div className="shrink-0 h-14 w-14 rounded-xl bg-gradient-to-tr from-brand/20 to-cyan-400/15 border border-brand/30 flex items-center justify-center">
+                    <it.icon className="h-7 w-7 text-brand" />
                   </div>
                   <div className="space-y-1.5">
-                    <h3 className="text-base md:text-lg font-bold text-neutral-100">
+                    <h3 className="text-base md:text-lg font-bold text-foreground">
                       {it.title}
                     </h3>
-                    <p className="text-sm md:text-[13px] leading-relaxed text-neutral-400">
+                    <p className="text-sm md:text-[13px] leading-relaxed text-muted-foreground">
                       {it.desc}
                     </p>
                   </div>
@@ -56,7 +56,7 @@ export default function KeyFeatures() {
               </div>
             ))}
           </div>
-          <p className="mt-8 md:mt-10 text-center text-sm md:text-base font-medium text-neutral-300">
+          <p className="mt-8 md:mt-10 text-center text-sm md:text-base font-medium text-muted-foreground">
             One Dashboard. All Risks. Safer Mines.
           </p>
         </div>
