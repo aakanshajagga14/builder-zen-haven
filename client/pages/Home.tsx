@@ -6,7 +6,15 @@ import { useNavigate } from "react-router-dom";
 export default function HomePage() {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
+    <div className="relative min-h-screen">
+      <div className="absolute inset-0 -z-10">
+        <img
+          src="https://images.unsplash.com/photo-1502786129293-79981df4e689?auto=format&fit=crop&w=2000&q=80"
+          alt="Open pit mine aerial background"
+          className="h-full w-full object-cover opacity-25"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/80 to-background" />
+      </div>
       <Header />
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 space-y-10">
         <section className="relative overflow-hidden rounded-2xl border border-border bg-[radial-gradient(1200px_400px_at_50%_-20%,hsl(var(--brand)/0.15),transparent)]">
