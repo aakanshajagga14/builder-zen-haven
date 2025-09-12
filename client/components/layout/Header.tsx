@@ -17,6 +17,7 @@ import {
   SheetContent,
   SheetTrigger,
   SheetClose,
+  SheetTitle,
 } from "@/components/ui/sheet";
 import { useNavigate } from "react-router-dom";
 
