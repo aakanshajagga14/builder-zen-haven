@@ -23,7 +23,8 @@ const App = () => (
       <SettingsProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/dashboard" element={<Index />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/sensors" element={<SensorsPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
