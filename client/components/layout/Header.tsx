@@ -56,7 +56,7 @@ export default function Header() {
                 <Menu className="h-4 w-4" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-full sm:max-w-sm">
+            <SheetContent side="left" className="w-full sm:max-w-sm overflow-y-auto">
               <div className="mb-3">
                 <p className="text-sm font-semibold">Menu</p>
                 <p className="text-xs text-muted-foreground">Navigate</p>
