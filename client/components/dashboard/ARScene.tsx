@@ -534,6 +534,42 @@ export default function ARScene({
           }}
         />
       </Canvas>
+      <div className="absolute inset-0">
+        <div className="sketchfab-embed-wrapper h-full w-full">
+          <iframe
+            title="The Bingham Canyon Mine - Utah"
+            allow="autoplay; fullscreen; xr-spatial-tracking"
+            allowFullScreen
+            className="h-full w-full"
+            src="https://sketchfab.com/models/d4c90edf676843ed89a26c12228f0abc/embed?ui_theme=dark"
+          ></iframe>
+          <p className="sr-only">
+            <a
+              href="https://sketchfab.com/3d-models/the-bingham-canyon-mine-utah-d4c90edf676843ed89a26c12228f0abc?utm_medium=embed&utm_campaign=share-popup&utm_content=d4c90edf676843ed89a26c12228f0abc"
+              target="_blank"
+              rel="nofollow"
+            >
+              The Bingham Canyon Mine - Utah
+            </a>{" "}
+            by{" "}
+            <a
+              href="https://sketchfab.com/Carlosbartesaghikoc?utm_medium=embed&utm_campaign=share-popup&utm_content=d4c90edf676843ed89a26c12228f0abc"
+              target="_blank"
+              rel="nofollow"
+            >
+              Dr Carlos Bartesaghi Koc
+            </a>{" "}
+            on{" "}
+            <a
+              href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=d4c90edf676843ed89a26c12228f0abc"
+              target="_blank"
+              rel="nofollow"
+            >
+              Sketchfab
+            </a>
+          </p>
+        </div>
+      </div>
       <div className="pointer-events-none absolute inset-0 flex items-start justify-between p-4">
         <div className="rounded-md bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/40 border border-border px-3 py-2">
           <p className="text-xs uppercase tracking-widest text-muted-foreground">
