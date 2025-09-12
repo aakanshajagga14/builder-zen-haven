@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import ControlsPanel from "@/components/dashboard/ControlsPanel";
 import { useSettings } from "@/context/SettingsContext";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useNavigate } from "react-router-dom";
 
 function useTheme() {
   const [dark, setDark] = useState<boolean>(() => {
@@ -31,6 +32,7 @@ function useTheme() {
 export default function Header() {
   const { dark, setDark } = useTheme();
   const { state, set } = useSettings();
+  const navigate = useNavigate();
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-14 flex items-center gap-3">
@@ -95,7 +97,7 @@ export default function Header() {
           >
             {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
-          <Button>Connect Sensors</Button>
+          <Button onClick={() => navigate("/sensors")}>Connect Sensors</Button>
         </div>
       </div>
     </header>
