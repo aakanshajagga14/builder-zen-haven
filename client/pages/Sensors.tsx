@@ -47,7 +47,9 @@ export default function SensorsPage() {
             Select a sensor to connect and stream data into the dashboard.
           </p>
         </div>
-        <Button variant="outline" onClick={() => navigate(-1)}>Back</Button>
+        <Button variant="outline" onClick={() => navigate(-1)}>
+          Back
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -58,15 +60,21 @@ export default function SensorsPage() {
                 <p className="text-base font-medium">{s.name}</p>
                 <div className="flex gap-1">
                   {s.tags.map((t) => (
-                    <Badge key={t} variant="secondary">{t}</Badge>
+                    <Badge key={t} variant="secondary">
+                      {t}
+                    </Badge>
                   ))}
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">{s.desc}</p>
             </div>
             <div className="mt-4 flex items-center justify-end gap-2">
-              <Button variant="outline" onClick={() => navigate("/settings")}>Configure</Button>
-              <Button onClick={() => navigate(`/sensors/${s.key}`)}>Connect</Button>
+              <Button variant="outline" onClick={() => navigate("/settings")}>
+                Configure
+              </Button>
+              <Button onClick={() => navigate(`/sensors/${s.key}`)}>
+                Connect
+              </Button>
             </div>
           </Card>
         ))}
