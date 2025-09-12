@@ -1,10 +1,23 @@
 import { Button } from "@/components/ui/button";
-import { Sun, Moon, Zap, Menu, LayoutDashboard, Settings as SettingsIcon, Plug } from "lucide-react";
+import {
+  Sun,
+  Moon,
+  Zap,
+  Menu,
+  LayoutDashboard,
+  Settings as SettingsIcon,
+  Plug,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import ControlsPanel from "@/components/dashboard/ControlsPanel";
 import { useSettings } from "@/context/SettingsContext";
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { useNavigate } from "react-router-dom";
 
 function useTheme() {
@@ -36,7 +49,10 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-14 flex items-center gap-3">
-        <div className="flex items-center gap-2 cursor-pointer select-none" onClick={() => navigate("/") }>
+        <div
+          className="flex items-center gap-2 cursor-pointer select-none"
+          onClick={() => navigate("/")}
+        >
           <div
             className={cn(
               "h-7 w-7 rounded-md border flex items-center justify-center",
@@ -56,31 +72,48 @@ export default function Header() {
                 <Menu className="h-4 w-4" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-full sm:max-w-sm overflow-y-auto">
+            <SheetContent
+              side="left"
+              className="w-full sm:max-w-sm overflow-y-auto"
+            >
               <div className="mb-3">
                 <p className="text-sm font-semibold">Menu</p>
                 <p className="text-xs text-muted-foreground">Navigate</p>
               </div>
               <nav className="grid gap-1.5 mb-3">
                 <SheetClose asChild>
-                  <Button variant="ghost" className="justify-start" onClick={() => navigate("/dashboard")}>
+                  <Button
+                    variant="ghost"
+                    className="justify-start"
+                    onClick={() => navigate("/dashboard")}
+                  >
                     <LayoutDashboard className="h-4 w-4 mr-2" /> Dashboard
                   </Button>
                 </SheetClose>
                 <SheetClose asChild>
-                  <Button variant="ghost" className="justify-start" onClick={() => navigate("/sensors")}>
+                  <Button
+                    variant="ghost"
+                    className="justify-start"
+                    onClick={() => navigate("/sensors")}
+                  >
                     <Plug className="h-4 w-4 mr-2" /> Connect Sensors
                   </Button>
                 </SheetClose>
                 <SheetClose asChild>
-                  <Button variant="ghost" className="justify-start" onClick={() => navigate("/settings")}>
+                  <Button
+                    variant="ghost"
+                    className="justify-start"
+                    onClick={() => navigate("/settings")}
+                  >
                     <SettingsIcon className="h-4 w-4 mr-2" /> Settings
                   </Button>
                 </SheetClose>
               </nav>
               <div className="pt-2 border-t mb-2">
                 <p className="text-sm font-semibold">Dashboard Settings</p>
-                <p className="text-xs text-muted-foreground">Tweak AR and visualization</p>
+                <p className="text-xs text-muted-foreground">
+                  Tweak AR and visualization
+                </p>
               </div>
               <ControlsPanel
                 running={state.running}

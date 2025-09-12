@@ -26,11 +26,20 @@ export default function HomePage() {
               Real‑time Mine Safety Intelligence
             </h1>
             <p className="mt-4 text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
-              Monitor hazards, fuse sensor data, and act before incidents occur. Rockfall, rainfall, landslides, gas risks—one premium dashboard.
+              Monitor hazards, fuse sensor data, and act before incidents occur.
+              Rockfall, rainfall, landslides, gas risks—one premium dashboard.
             </p>
             <div className="mt-8 flex items-center justify-center gap-3">
-              <Button size="lg" onClick={() => navigate("/dashboard")}>Open Dashboard</Button>
-              <Button size="lg" variant="outline" onClick={() => navigate("/sensors")}>Connect Sensors</Button>
+              <Button size="lg" onClick={() => navigate("/dashboard")}>
+                Open Dashboard
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => navigate("/sensors")}
+              >
+                Connect Sensors
+              </Button>
             </div>
           </div>
         </section>
