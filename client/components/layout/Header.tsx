@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Sun, Moon, Zap, Menu } from "lucide-react";
+import { Sun, Moon, Zap, Menu, LayoutDashboard, Settings as SettingsIcon, Plug } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import ControlsPanel from "@/components/dashboard/ControlsPanel";
 import { useSettings } from "@/context/SettingsContext";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { useNavigate } from "react-router-dom";
 
 function useTheme() {
@@ -56,12 +56,31 @@ export default function Header() {
                 <Menu className="h-4 w-4" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-full sm:max-w-md">
-              <div className="mb-2">
+            <SheetContent side="left" className="w-full sm:max-w-sm">
+              <div className="mb-3">
+                <p className="text-sm font-semibold">Menu</p>
+                <p className="text-xs text-muted-foreground">Navigate</p>
+              </div>
+              <nav className="grid gap-1.5 mb-3">
+                <SheetClose asChild>
+                  <Button variant="ghost" className="justify-start" onClick={() => navigate("/dashboard")}>
+                    <LayoutDashboard className="h-4 w-4 mr-2" /> Dashboard
+                  </Button>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Button variant="ghost" className="justify-start" onClick={() => navigate("/sensors")}>
+                    <Plug className="h-4 w-4 mr-2" /> Connect Sensors
+                  </Button>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Button variant="ghost" className="justify-start" onClick={() => navigate("/settings")}>
+                    <SettingsIcon className="h-4 w-4 mr-2" /> Settings
+                  </Button>
+                </SheetClose>
+              </nav>
+              <div className="pt-2 border-t mb-2">
                 <p className="text-sm font-semibold">Dashboard Settings</p>
-                <p className="text-xs text-muted-foreground">
-                  Tweak AR and visualization
-                </p>
+                <p className="text-xs text-muted-foreground">Tweak AR and visualization</p>
               </div>
               <ControlsPanel
                 running={state.running}
