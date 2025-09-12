@@ -77,6 +77,7 @@ export default function Header() {
               side="left"
               className="w-full sm:max-w-sm overflow-y-auto"
             >
+              <SheetTitle className="sr-only">Main Menu</SheetTitle>
               <div className="mb-3">
                 <p className="text-sm font-semibold">Menu</p>
                 <p className="text-xs text-muted-foreground">Navigate</p>
