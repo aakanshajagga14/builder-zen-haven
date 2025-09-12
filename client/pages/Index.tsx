@@ -19,9 +19,15 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background">
       <Header />
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <section className="space-y-6">
-          <div className="h-[48vh] lg:h-[60vh]">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Live Safety Dashboard</p>
+              <h2 className="text-xl md:text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-muted-foreground">Mine Risk Monitoring</h2>
+            </div>
+          </div>
+          <div className="h-[48vh] lg:h-[60vh] rounded-2xl border border-border/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] bg-[radial-gradient(600px_200px_at_50%_-20%,rgba(250,204,21,0.1),transparent)]">
             <ARScene
               running={state.running}
               showWireframe={state.showWireframe}
