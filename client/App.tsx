@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import SettingsPage from "./pages/Settings";
 import SensorsPage from "./pages/Sensors";
+import HomePage from "./pages/Home";
 import { SettingsProvider } from "./context/SettingsContext";
 
 const queryClient = new QueryClient();
