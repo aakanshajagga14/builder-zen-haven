@@ -93,9 +93,8 @@ export default function SensorsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {sensors.map((s) => (
           <Card key={s.key} className="p-4">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-start mb-2">
               <p className="text-base font-medium">{s.name}</p>
-              <Button variant="secondary" onClick={() => navigate(`/sensors/${s.key}`)}>Details</Button>
             </div>
             <p className="text-sm text-muted-foreground mb-3">{s.desc}</p>
             {s.key === "rain" && (
