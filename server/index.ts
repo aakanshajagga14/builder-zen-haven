@@ -20,8 +20,8 @@ export function createServer() {
   app.get("/api/demo", handleDemo);
 
   // Sensor hardware endpoints
-  app.get("/api/sensors/latest", require("./routes/sensors").getSensorsLatest);
-  app.post("/api/sensors/latest", require("./routes/sensors").postSensorsLatest);
+  app.get("/api/sensors/latest", getSensorsLatest);
+  app.post("/api/sensors/latest", postSensorsLatest);
 
   return app;
 }
